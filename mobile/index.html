@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>勘察照片上传</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 100%;
+            padding: 16px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 16px;
+            margin: -16px -16px 20px -16px;
+            border-radius: 0 0 20px 20px;
+        }
+        
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .select-box {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            background: white;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+        }
+        
+        .camera-area {
+            border: 2px dashed #d0d0d0;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .camera-area:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .camera-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        
+        .camera-text {
+            color: #666;
+            font-size: 15px;
+        }
+        
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 16px;
+        }
+        
+        .photo-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+        
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .photo-delete {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 59, 48, 0.9);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .device-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            margin-bottom: 12px;
+        }
+        
+        .remark-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .upload-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+        
+        .upload-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .upload-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .file-name {
+            font-size: 14px;
+            color: #666;
+            margin-top: 8px;
+            word-break: break-all;
+        }
+        
+        .tag-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        
+        .tag-btn {
+            padding: 8px 16px;
+            border: 1px solid #e0e0e0;
+            background: white;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .tag-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            margin-top: 12px;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .progress-bar.show {
+            display: block;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .status-text {
+            font-size: 13px;
+            color: #666;
+            margin-top: 8px;
+            text-align: center;
+        }
+        
+        #file-input {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📸 勘察照片上传</h1>
+            <p id="project-info">请扫描项目二维码进入</p>
+        </div>
+        
+        <div class="card">
+            <div class="section-title">📍 选择站点</div>
+            <select class="select-box" id="site-select">
+                <option value="">请选择站点</option>
+            </select>
+        </div>
+        
+        <div class="card">
+            <div class="section-title">📷 拍照/选择照片</div>
+            <div class="camera-area" id="camera-area">
+                <div class="camera-icon">📷</div>
+                <div class="camera-text">点击拍照或从相册选择</div>
+            </div>
+            <input type="file" id="file-input" accept="image/*" multiple>
+            
+            <div class="photo-grid" id="photo-grid"></div>
+        </div>
+        
+        <div class="card">
+            <div class="section-title">🏷️ 设备类型</div>
+            <div class="tag-selector" id="device-tags">
+                <button class="tag-btn" data-type="机柜">机柜</button>
+                <button class="tag-btn" data-type="天线">天线</button>
+                <button class="tag-btn" data-type="电源">电源</button>
+                <button class="tag-btn" data-type="传输">传输</button>
+                <button class="tag-btn" data-type="接地">接地</button>
+                <button class="tag-btn" data-type="其他">其他</button>
+            </div>
+            <input type="text" class="device-input" id="device-input" placeholder="或输入设备类型">
+        </div>
+        
+        <div class="card">
+            <div class="section-title">📝 备注</div>
+            <textarea class="remark-input" id="remark-input" placeholder="添加备注信息..."></textarea>
+        </div>
+        
+        <button class="upload-btn" id="upload-btn">上传照片</button>
+        <div class="progress-bar" id="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="status-text" id="status-text"></div>
+    </div>
+
+    <script>
+        // 应用状态
+        const state = {
+            projectId: null,
+            projectCode: '',
+            projectName: '',
+            sites: [],
+            selectedSiteId: null,
+            selectedDeviceType: '',
+            photos: [],
+            isUploading: false
+        };
+        
+        // DOM 元素
+        const elements = {
+            projectInfo: document.getElementById('project-info'),
+            siteSelect: document.getElementById('site-select'),
+            cameraArea: document.getElementById('camera-area'),
+            fileInput: document.getElementById('file-input'),
+            photoGrid: document.getElementById('photo-grid'),
+            deviceTags: document.getElementById('device-tags'),
+            deviceInput: document.getElementById('device-input'),
+            remarkInput: document.getElementById('remark-input'),
+            uploadBtn: document.getElementById('upload-btn'),
+            progressBar: document.getElementById('progress-bar'),
+            progressFill: document.getElementById('progress-fill'),
+            statusText: document.getElementById('status-text')
+        };
+        
+        // 初始化
+        function init() {
+            checkUrlParams();
+            bindEvents();
+            loadFromStorage();
+        }
+        
+        // 检查 URL 参数
+        function checkUrlParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const projectId = urlParams.get('projectId');
+            
+            if (projectId) {
+                loadProjectInfo(projectId);
+            }
+        }
+        
+        // 加载项目信息（模拟）
+        async function loadProjectInfo(projectId) {
+            state.projectId = projectId;
+            state.projectCode = 'PROJ2024001';
+            state.projectName = '某地市5G基站勘察项目';
+            state.sites = [
+                { id: 'site-1', name: '城东区政府基站', code: 'CD-001' },
+                { id: 'site-2', name: '朝阳公园基站', code: 'CD-002' },
+                { id: 'site-3', name: '国贸大厦基站', code: 'CD-003' }
+            ];
+            
+            elements.projectInfo.textContent = `${state.projectCode} - ${state.projectName}`;
+            renderSiteOptions();
+        }
+        
+        // 渲染站点选项
+        function renderSiteOptions() {
+            elements.siteSelect.innerHTML = '<option value="">请选择站点</option>';
+            state.sites.forEach(site => {
+                const option = document.createElement('option');
+                option.value = site.id;
+                option.textContent = `${site.code} - ${site.name}`;
+                elements.siteSelect.appendChild(option);
+            });
+        }
+        
+        // 绑定事件
+        function bindEvents() {
+            elements.cameraArea.addEventListener('click', () => elements.fileInput.click());
+            
+            elements.fileInput.addEventListener('change', (e) => {
+                handleFiles(e.target.files);
+            });
+            
+            elements.siteSelect.addEventListener('change', (e) => {
+                state.selectedSiteId = e.target.value;
+            });
+            
+            elements.deviceTags.addEventListener('click', (e) => {
+                if (e.target.classList.contains('tag-btn')) {
+                    document.querySelectorAll('.tag-btn').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    state.selectedDeviceType = e.target.dataset.type;
+                    elements.deviceInput.value = '';
+                }
+            });
+            
+            elements.deviceInput.addEventListener('input', (e) => {
+                state.selectedDeviceType = e.target.value;
+                document.querySelectorAll('.tag-btn').forEach(btn => btn.classList.remove('active'));
+            });
+            
+            elements.uploadBtn.addEventListener('click', handleUpload);
+        }
+        
+        // 处理文件选择
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const photo = {
+                        id: Date.now() + Math.random(),
+                        file: file,
+                        preview: e.target.result,
+                        name: file.name
+                    };
+                    state.photos.push(photo);
+                    renderPhotoGrid();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        // 渲染照片网格
+        function renderPhotoGrid() {
+            elements.photoGrid.innerHTML = '';
+            state.photos.forEach(photo => {
+                const item = document.createElement('div');
+                item.className = 'photo-item';
+                item.innerHTML = `
+                    <img src="${photo.preview}" alt="照片">
+                    <button class="photo-delete" onclick="deletePhoto('${photo.id}')">×</button>
+                `;
+                elements.photoGrid.appendChild(item);
+            });
+        }
+        
+        // 删除照片
+        window.deletePhoto = function(id) {
+            state.photos = state.photos.filter(p => p.id != id);
+            renderPhotoGrid();
+        };
+        
+        // 从本地存储加载
+        function loadFromStorage() {
+            const saved = localStorage.getItem('survey_photos');
+            if (saved) {
+                const data = JSON.parse(saved);
+                console.log('待上传照片:', data.length);
+            }
+        }
+        
+        // 保存到本地存储
+        function saveToStorage() {
+            localStorage.setItem('survey_photos', JSON.stringify(state.photos.map(p => ({
+                name: p.name,
+                preview: p.preview
+            }))));
+        }
+        
+        // 处理上传
+        async function handleUpload() {
+            if (state.photos.length === 0) {
+                alert('请先选择照片');
+                return;
+            }
+            
+            if (!state.selectedSiteId) {
+                alert('请选择站点');
+                return;
+            }
+            
+            state.isUploading = true;
+            elements.uploadBtn.disabled = true;
+            elements.progressBar.classList.add('show');
+            elements.statusText.textContent = '正在上传...';
+            
+            for (let i = 0; i < state.photos.length; i++) {
+                const progress = ((i + 1) / state.photos.length) * 100;
+                elements.progressFill.style.width = progress + '%';
+                elements.statusText.textContent = `正在上传 ${i + 1}/${state.photos.length}`;
+                await new Promise(r => setTimeout(r, 500));
+            }
+            
+            state.isUploading = false;
+            elements.uploadBtn.disabled = false;
+            elements.statusText.textContent = '上传成功！';
+            state.photos = [];
+            renderPhotoGrid();
+            
+            setTimeout(() => {
+                elements.progressBar.classList.remove('show');
+                elements.progressFill.style.width = '0%';
+                elements.statusText.textContent = '';
+            }, 2000);
+        }
+        
+        init();
+    </script>
+</body>
+</html>
