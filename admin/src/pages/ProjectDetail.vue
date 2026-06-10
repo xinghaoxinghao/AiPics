@@ -11,6 +11,7 @@ import {
   Setting,
   Edit
 } from '@element-plus/icons-vue'
+import { getProjects, updateProject } from '@/store'
 import type { Project } from '@/types'
 
 const route = useRoute()
@@ -19,85 +20,33 @@ const projectId = route.params.id as string
 const loading = ref(false)
 const project = ref<Project | null>(null)
 
-// 模拟预置项目数据
-const mockProjects: Project[] = [
-  {
-    id: 'proj-001',
-    code: 'PROJ2024001',
-    name: '某地市5G基站勘察项目',
-    description: '2024年度5G基站建设勘察项目，涵盖全市15个基站站点的勘察工作',
-    createdAt: '2024-01-15T08:30:00Z',
-    qrcodeUrl: 'https://picsum.photos/300/300?random=10',
-    siteCount: 15,
-    photoCount: 245
-  },
-  {
-    id: 'proj-002',
-    code: 'PROJ2024002',
-    name: '城东新区光纤入户工程',
-    description: '城东新区新建小区光纤入户勘察',
-    createdAt: '2024-02-20T10:15:00Z',
-    qrcodeUrl: 'https://picsum.photos/300/300?random=11',
-    siteCount: 8,
-    photoCount: 128
-  },
-  {
-    id: 'proj-003',
-    code: 'PROJ2024003',
-    name: '地铁4号线通信配套',
-    description: '地铁4号线通信系统配套工程勘察',
-    createdAt: '2024-03-10T14:45:00Z',
-    qrcodeUrl: 'https://picsum.photos/300/300?random=12',
-    siteCount: 12,
-    photoCount: 192
-  }
-]
-
-// 判断是否为空项目（新建的项目）
+// 判断是否为空项目
 const isEmptyProject = computed(() => {
   if (!project.value) return false
   return project.value.siteCount === 0 && project.value.photoCount === 0
 })
 
-// 加载项目详情
-const loadProject = async () => {
+// 加载项目详情（从 store 读取）
+const loadProject = () => {
   loading.value = true
   try {
-    // 查找匹配的模拟项目，找不到则生成空项目占位
-    const existing = mockProjects.find((p) => p.id === projectId)
-    if (existing) {
-      project.value = existing
+    const projects = getProjects()
+    const found = projects.find((p) => p.id === projectId)
+    if (found) {
+      project.value = found
     } else {
-      // 如果是新创建的项目，从 localStorage 尝试读取
-      const stored = typeof window !== 'undefined'
-        ? window.localStorage.getItem(`project_${projectId}`)
-        : null
-      if (stored) {
-        project.value = JSON.parse(stored) as Project
-      } else {
-        // 生成空项目占位
-        project.value = {
-          id: projectId,
-          code: `PROJ${projectId.slice(-6).toUpperCase()}`,
-          name: '新建勘察项目',
-          description: '这是一个刚刚创建的项目，还没有站点和照片数据。请先导入勘察报告或手动添加站点，然后使用手机扫码上传照片。',
-          createdAt: new Date().toISOString(),
-          qrcodeUrl: `https://picsum.photos/300/300?random=${projectId}`,
-          siteCount: 0,
-          photoCount: 0
-        }
-      }
+      // 找不到项目则显示错误
+      ElMessage.warning('项目不存在或已被删除')
+      setTimeout(() => router.push('/'), 1500)
     }
-    // const data = await getProject(projectId)
-    // project.value = data
-  } catch (error) {
+  } catch {
     ElMessage.error('加载项目详情失败')
   } finally {
     loading.value = false
   }
 }
 
-// 修改项目名称
+// 编辑项目名称
 const editProjectName = async () => {
   if (!project.value) return
   try {
@@ -108,6 +57,7 @@ const editProjectName = async () => {
       inputPattern: /\S+/,
       inputErrorMessage: '项目名称不能为空'
     })
+    updateProject(project.value.id, { name: value })
     project.value.name = value
     ElMessage.success('项目名称已更新')
   } catch {
@@ -115,44 +65,42 @@ const editProjectName = async () => {
   }
 }
 
-// 功能菜单
-const menuItems = [
-  { 
-    key: 'import', 
-    icon: Upload, 
-    title: '勘察报告导入', 
+// 功能菜单（使用当前 projectId，保证项目数据隔离）
+const menuItems = computed(() => [
+  {
+    key: 'import',
+    icon: Upload,
+    title: '勘察报告导入',
     desc: '上传Word/Excel/PDF文件，自动解析项目信息和站点列表',
     path: `/projects/${projectId}/import`
   },
-  { 
-    key: 'sites', 
-    icon: Document, 
-    title: '站点管理', 
-    desc: '管理项目下的所有站点，支持批量导入和编辑',
+  {
+    key: 'sites',
+    icon: Document,
+    title: '站点管理',
+    desc: '管理项目下的所有站点，支持手动添加和编辑',
     path: `/projects/${projectId}/sites`
   },
-  { 
-    key: 'photos', 
-    icon: Picture, 
-    title: '照片管理', 
-    desc: '查看和管理所有上传的照片，支持批量操作',
+  {
+    key: 'photos',
+    icon: Picture,
+    title: '照片管理',
+    desc: '查看和管理所有上传的照片，按站点分组显示',
     path: `/projects/${projectId}/photos`
   },
-  { 
-    key: 'ppt', 
-    icon: Download, 
-    title: '生成PPT报告', 
+  {
+    key: 'ppt',
+    icon: Download,
+    title: '生成PPT报告',
     desc: '一键生成包含封面、站点照片和附录的PPT文件',
     path: `/projects/${projectId}/ppt`
   }
-]
+])
 
-// 跳转页面
 const navigateTo = (path: string) => {
   router.push(path)
 }
 
-// 返回项目列表
 const goBack = () => {
   router.push('/')
 }
@@ -191,26 +139,21 @@ onMounted(() => {
           <div class="welcome-icon">🎉</div>
           <div class="welcome-text">
             <h3>项目已创建！开始你的勘察项目</h3>
-            <p>接下来你可以：导入勘察报告 → 管理站点 → 手机扫码上传照片 → 生成PPT报告</p>
+            <p>接下来你可以：管理站点 → 上传照片 → 生成PPT报告</p>
           </div>
           <div class="welcome-steps">
             <div class="welcome-step">
               <span class="step-num">1</span>
-              <span>导入勘察报告</span>
-            </div>
-            <div class="welcome-arrow">→</div>
-            <div class="welcome-step">
-              <span class="step-num">2</span>
               <span>管理站点</span>
             </div>
             <div class="welcome-arrow">→</div>
             <div class="welcome-step">
-              <span class="step-num">3</span>
+              <span class="step-num">2</span>
               <span>手机扫码上传照片</span>
             </div>
             <div class="welcome-arrow">→</div>
             <div class="welcome-step">
-              <span class="step-num">4</span>
+              <span class="step-num">3</span>
               <span>生成PPT报告</span>
             </div>
           </div>
@@ -222,7 +165,7 @@ onMounted(() => {
         <div class="overview-header">
           <div class="overview-info">
             <h2>项目概览</h2>
-            <p class="project-desc">{{ project.description }}</p>
+            <p class="project-desc">{{ project.description || '暂无项目描述' }}</p>
           </div>
           <div class="qrcode-large">
             <img :src="project.qrcodeUrl" alt="项目二维码" />
@@ -264,8 +207,8 @@ onMounted(() => {
       <div class="menu-section">
         <h3>功能菜单</h3>
         <div class="menu-grid">
-          <div 
-            v-for="item in menuItems" 
+          <div
+            v-for="item in menuItems"
             :key="item.key"
             class="menu-item"
             @click="navigateTo(item.path)"

@@ -1,9 +1,15 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, type FormRules, type FormInstance } from 'element-plus'
-import { Plus, Document, Picture, Search } from '@element-plus/icons-vue'
-import { getProjects, createProject } from '@/api/project'
+import { ElMessage, ElMessageBox, type FormRules, type FormInstance } from 'element-plus'
+import { Plus, Document, Picture, Search, Delete, Edit } from '@element-plus/icons-vue'
+import {
+  getProjects as loadProjectsStore,
+  createProject as storeCreateProject,
+  deleteProject as storeDeleteProject,
+  updateProject as storeUpdateProject,
+  clearAllData
+} from '@/store'
 import type { Project } from '@/types'
 
 const router = useRouter()
@@ -11,7 +17,7 @@ const projects = ref<Project[]>([])
 const loading = ref(false)
 const searchText = ref('')
 
-// 新建项目对话框状态
+// 新建项目对话框
 const dialogVisible = ref(false)
 const dialogLoading = ref(false)
 const projectFormRef = ref<FormInstance>()
@@ -20,6 +26,16 @@ const form = reactive({
   name: '',
   description: '',
   jumpToDetail: true
+})
+
+// 编辑项目对话框
+const editDialogVisible = ref(false)
+const editFormRef = ref<FormInstance>()
+const editForm = reactive({
+  id: '',
+  code: '',
+  name: '',
+  description: ''
 })
 
 // 表单验证规则
@@ -35,40 +51,6 @@ const rules: FormRules = {
   ]
 }
 
-// 模拟数据
-const mockProjects: Project[] = [
-  {
-    id: 'proj-001',
-    code: 'PROJ2024001',
-    name: '某地市5G基站勘察项目',
-    description: '2024年度5G基站建设勘察项目',
-    createdAt: '2024-01-15T08:30:00Z',
-    qrcodeUrl: 'https://picsum.photos/200/200?random=1',
-    siteCount: 15,
-    photoCount: 245
-  },
-  {
-    id: 'proj-002',
-    code: 'PROJ2024002',
-    name: '城东新区光纤入户工程',
-    description: '城东新区新建小区光纤入户勘察',
-    createdAt: '2024-02-20T10:15:00Z',
-    qrcodeUrl: 'https://picsum.photos/200/200?random=2',
-    siteCount: 8,
-    photoCount: 128
-  },
-  {
-    id: 'proj-003',
-    code: 'PROJ2024003',
-    name: '地铁4号线通信配套',
-    description: '地铁4号线通信系统配套工程勘察',
-    createdAt: '2024-03-10T14:45:00Z',
-    qrcodeUrl: 'https://picsum.photos/200/200?random=3',
-    siteCount: 12,
-    photoCount: 192
-  }
-]
-
 // 生成项目编号
 const generateProjectCode = () => {
   const now = new Date()
@@ -79,25 +61,20 @@ const generateProjectCode = () => {
 }
 
 // 加载项目列表
-const loadProjects = async () => {
+const loadProjects = () => {
   loading.value = true
   try {
-    // 暂时使用模拟数据
-    projects.value = mockProjects
-    // const data = await getProjects()
-    // projects.value = data
-  } catch (error) {
+    projects.value = loadProjectsStore()
+  } catch {
     ElMessage.error('加载项目列表失败')
   } finally {
     loading.value = false
   }
 }
 
-// 搜索过滤后的项目列表
+// 过滤后的项目列表
 const filteredProjects = computed(() => {
-  if (!searchText.value.trim()) {
-    return projects.value
-  }
+  if (!searchText.value.trim()) return projects.value
   const keyword = searchText.value.toLowerCase()
   return projects.value.filter(
     (p) =>
@@ -116,7 +93,6 @@ const handleCreateProject = () => {
   form.jumpToDetail = true
 }
 
-// 关闭对话框并重置表单
 const closeDialog = () => {
   dialogVisible.value = false
   projectFormRef.value?.resetFields()
@@ -129,35 +105,110 @@ const submitProject = async () => {
     if (!valid) return
     try {
       dialogLoading.value = true
-      const newProject: Project = {
-        id: `proj-${Date.now()}`,
+      // 检查编号是否重复
+      const exists = projects.value.some((p) => p.code === form.code)
+      if (exists) {
+        ElMessage.error('项目编号已存在，请使用其他编号')
+        return
+      }
+      const newProject = storeCreateProject({
         code: form.code,
         name: form.name,
-        description: form.description,
-        createdAt: new Date().toISOString(),
-        qrcodeUrl: `https://picsum.photos/200/200?random=${Date.now()}`,
-        siteCount: 0,
-        photoCount: 0
-      }
-      // 调用API创建项目（暂时注释，使用模拟数据）
-      // const response = await createProject({
-      //   code: form.code,
-      //   name: form.name,
-      //   description: form.description
-      // })
-      // projects.value.unshift(response)
-      projects.value.unshift(newProject)
+        description: form.description
+      })
+      loadProjects()
       ElMessage.success('项目创建成功！')
       closeDialog()
       if (form.jumpToDetail) {
         router.push(`/projects/${newProject.id}`)
       }
-    } catch (error) {
+    } catch {
       ElMessage.error('创建项目失败，请重试')
     } finally {
       dialogLoading.value = false
     }
   })
+}
+
+// 打开编辑项目对话框
+const handleEditProject = (project: Project, evt: MouseEvent) => {
+  evt.stopPropagation()
+  editForm.id = project.id
+  editForm.code = project.code
+  editForm.name = project.name
+  editForm.description = project.description ?? ''
+  editDialogVisible.value = true
+}
+
+const closeEditDialog = () => {
+  editDialogVisible.value = false
+  editFormRef.value?.resetFields()
+}
+
+const submitEditProject = async () => {
+  if (!editFormRef.value) return
+  await editFormRef.value.validate(async (valid) => {
+    if (!valid) return
+    try {
+      // 检查编号是否与其他项目重复
+      const others = projects.value.filter((p) => p.id !== editForm.id)
+      if (others.some((p) => p.code === editForm.code)) {
+        ElMessage.error('项目编号已存在，请使用其他编号')
+        return
+      }
+      storeUpdateProject(editForm.id, {
+        code: editForm.code,
+        name: editForm.name,
+        description: editForm.description
+      })
+      loadProjects()
+      ElMessage.success('项目已更新')
+      closeEditDialog()
+    } catch {
+      ElMessage.error('更新项目失败')
+    }
+  })
+}
+
+// 删除项目
+const handleDeleteProject = (project: Project, evt: MouseEvent) => {
+  evt.stopPropagation()
+  ElMessageBox.confirm(
+    `确定要删除项目「${project.name}」吗？该项目下的所有站点和照片也会被一并删除，此操作不可撤销。`,
+    '删除项目',
+    {
+      confirmButtonText: '确定删除',
+      cancelButtonText: '取消',
+      type: 'warning',
+      confirmButtonClass: 'el-button--danger'
+    }
+  )
+    .then(() => {
+      storeDeleteProject(project.id)
+      loadProjects()
+      ElMessage.success('项目已删除')
+    })
+    .catch(() => {})
+}
+
+// 清空所有数据
+const handleClearAll = () => {
+  ElMessageBox.confirm(
+    '确定要清空所有项目、站点和照片数据吗？此操作不可撤销！',
+    '清空数据',
+    {
+      confirmButtonText: '确定清空',
+      cancelButtonText: '取消',
+      type: 'warning',
+      confirmButtonClass: 'el-button--danger'
+    }
+  )
+    .then(() => {
+      clearAllData()
+      loadProjects()
+      ElMessage.success('所有数据已清空')
+    })
+    .catch(() => {})
 }
 
 // 查看项目详情
@@ -190,6 +241,9 @@ onMounted(() => {
           :prefix-icon="Search"
           class="search-input"
         />
+        <el-button v-if="projects.length > 0" @click="handleClearAll">
+          清空所有数据
+        </el-button>
         <el-button type="primary" :icon="Plus" @click="handleCreateProject">
           新建项目
         </el-button>
@@ -197,8 +251,8 @@ onMounted(() => {
     </div>
 
     <div v-loading="loading" class="project-grid">
-      <el-card 
-        v-for="project in filteredProjects" 
+      <el-card
+        v-for="project in filteredProjects"
         :key="project.id"
         class="project-card"
         shadow="hover"
@@ -226,12 +280,22 @@ onMounted(() => {
         </div>
         <div class="project-footer">
           <span class="create-time">创建于 {{ formatDate(project.createdAt) }}</span>
+          <div class="footer-actions" @click.stop>
+            <el-button link type="primary" size="small" :icon="Edit" @click="handleEditProject(project, $event)">
+              编辑
+            </el-button>
+            <el-button link type="danger" size="small" :icon="Delete" @click="handleDeleteProject(project, $event)">
+              删除
+            </el-button>
+          </div>
         </div>
       </el-card>
 
       <div v-if="filteredProjects.length === 0 && !loading" class="empty-state">
         <div class="empty-icon">📭</div>
-        <p class="empty-text">{{ searchText ? '没有找到匹配的项目' : '还没有项目，点击右上角「新建项目」开始' }}</p>
+        <p class="empty-text">
+          {{ searchText ? '没有找到匹配的项目' : '还没有项目，点击右上角「新建项目」开始' }}
+        </p>
       </div>
     </div>
 
@@ -284,7 +348,7 @@ onMounted(() => {
             resize="none"
           />
         </el-form-item>
-        <el-form-item label-width="0" prop="jumpToDetail">
+        <el-form-item label-width="0">
           <el-checkbox v-model="form.jumpToDetail">创建成功后自动跳转到项目详情页</el-checkbox>
         </el-form-item>
       </el-form>
@@ -293,6 +357,44 @@ onMounted(() => {
         <el-button type="primary" :loading="dialogLoading" @click="submitProject">
           创建项目
         </el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 编辑项目对话框 -->
+    <el-dialog
+      v-model="editDialogVisible"
+      title="编辑项目"
+      width="560px"
+      :close-on-click-modal="false"
+      @close="closeEditDialog"
+    >
+      <el-form
+        ref="editFormRef"
+        :model="editForm"
+        :rules="rules"
+        label-width="100px"
+        label-position="right"
+      >
+        <el-form-item label="项目编号" prop="code">
+          <el-input v-model="editForm.code" maxlength="30" show-word-limit />
+        </el-form-item>
+        <el-form-item label="项目名称" prop="name">
+          <el-input v-model="editForm.name" maxlength="100" show-word-limit />
+        </el-form-item>
+        <el-form-item label="项目描述" prop="description">
+          <el-input
+            v-model="editForm.description"
+            type="textarea"
+            :rows="4"
+            maxlength="500"
+            show-word-limit
+            resize="none"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="closeEditDialog">取消</el-button>
+        <el-button type="primary" @click="submitEditProject">保存</el-button>
       </template>
     </el-dialog>
   </div>
@@ -457,6 +559,11 @@ onMounted(() => {
 .create-time {
   font-size: 13px;
   color: #9ca3af;
+}
+
+.footer-actions {
+  display: flex;
+  gap: 8px;
 }
 
 .form-tip {
