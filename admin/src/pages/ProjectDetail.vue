@@ -1,8 +1,16 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
-import { ArrowLeft, Document, Picture, Upload, Download, Setting } from '@element-plus/icons-vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import {
+  ArrowLeft,
+  Document,
+  Picture,
+  Upload,
+  Download,
+  Setting,
+  Edit
+} from '@element-plus/icons-vue'
 import type { Project } from '@/types'
 
 const route = useRoute()
@@ -11,30 +19,99 @@ const projectId = route.params.id as string
 const loading = ref(false)
 const project = ref<Project | null>(null)
 
-// 模拟数据
-const mockProject: Project = {
-  id: 'proj-001',
-  code: 'PROJ2024001',
-  name: '某地市5G基站勘察项目',
-  description: '2024年度5G基站建设勘察项目，涵盖全市15个基站站点的勘察工作',
-  createdAt: '2024-01-15T08:30:00Z',
-  qrcodeUrl: 'https://picsum.photos/300/300?random=10',
-  siteCount: 15,
-  photoCount: 245
-}
+// 模拟预置项目数据
+const mockProjects: Project[] = [
+  {
+    id: 'proj-001',
+    code: 'PROJ2024001',
+    name: '某地市5G基站勘察项目',
+    description: '2024年度5G基站建设勘察项目，涵盖全市15个基站站点的勘察工作',
+    createdAt: '2024-01-15T08:30:00Z',
+    qrcodeUrl: 'https://picsum.photos/300/300?random=10',
+    siteCount: 15,
+    photoCount: 245
+  },
+  {
+    id: 'proj-002',
+    code: 'PROJ2024002',
+    name: '城东新区光纤入户工程',
+    description: '城东新区新建小区光纤入户勘察',
+    createdAt: '2024-02-20T10:15:00Z',
+    qrcodeUrl: 'https://picsum.photos/300/300?random=11',
+    siteCount: 8,
+    photoCount: 128
+  },
+  {
+    id: 'proj-003',
+    code: 'PROJ2024003',
+    name: '地铁4号线通信配套',
+    description: '地铁4号线通信系统配套工程勘察',
+    createdAt: '2024-03-10T14:45:00Z',
+    qrcodeUrl: 'https://picsum.photos/300/300?random=12',
+    siteCount: 12,
+    photoCount: 192
+  }
+]
+
+// 判断是否为空项目（新建的项目）
+const isEmptyProject = computed(() => {
+  if (!project.value) return false
+  return project.value.siteCount === 0 && project.value.photoCount === 0
+})
 
 // 加载项目详情
 const loadProject = async () => {
   loading.value = true
   try {
-    // 暂时使用模拟数据
-    project.value = mockProject
+    // 查找匹配的模拟项目，找不到则生成空项目占位
+    const existing = mockProjects.find((p) => p.id === projectId)
+    if (existing) {
+      project.value = existing
+    } else {
+      // 如果是新创建的项目，从 localStorage 尝试读取
+      const stored = typeof window !== 'undefined'
+        ? window.localStorage.getItem(`project_${projectId}`)
+        : null
+      if (stored) {
+        project.value = JSON.parse(stored) as Project
+      } else {
+        // 生成空项目占位
+        project.value = {
+          id: projectId,
+          code: `PROJ${projectId.slice(-6).toUpperCase()}`,
+          name: '新建勘察项目',
+          description: '这是一个刚刚创建的项目，还没有站点和照片数据。请先导入勘察报告或手动添加站点，然后使用手机扫码上传照片。',
+          createdAt: new Date().toISOString(),
+          qrcodeUrl: `https://picsum.photos/300/300?random=${projectId}`,
+          siteCount: 0,
+          photoCount: 0
+        }
+      }
+    }
     // const data = await getProject(projectId)
     // project.value = data
   } catch (error) {
     ElMessage.error('加载项目详情失败')
   } finally {
     loading.value = false
+  }
+}
+
+// 修改项目名称
+const editProjectName = async () => {
+  if (!project.value) return
+  try {
+    const { value } = await ElMessageBox.prompt('请输入项目名称', '修改项目名称', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      inputValue: project.value.name,
+      inputPattern: /\S+/,
+      inputErrorMessage: '项目名称不能为空'
+    })
+    project.value.name = value
+    ElMessage.success('项目名称已更新')
+  } catch {
+    // 用户取消
   }
 }
 
@@ -91,13 +168,55 @@ onMounted(() => {
       <div class="header-left">
         <el-button :icon="ArrowLeft" circle @click="goBack" />
         <div class="header-info">
-          <h1>{{ project?.name }}</h1>
+          <div class="project-title">
+            <h1>{{ project?.name }}</h1>
+            <el-button
+              :icon="Edit"
+              text
+              size="small"
+              @click.stop="editProjectName"
+              class="edit-btn"
+            >编辑
+            </el-button>
+          </div>
           <p class="project-code">{{ project?.code }}</p>
         </div>
       </div>
     </div>
 
     <div v-if="project" class="detail-content">
+      <!-- 新手引导横幅（空项目显示） -->
+      <el-card v-if="isEmptyProject" class="welcome-card">
+        <div class="welcome-content">
+          <div class="welcome-icon">🎉</div>
+          <div class="welcome-text">
+            <h3>项目已创建！开始你的勘察项目</h3>
+            <p>接下来你可以：导入勘察报告 → 管理站点 → 手机扫码上传照片 → 生成PPT报告</p>
+          </div>
+          <div class="welcome-steps">
+            <div class="welcome-step">
+              <span class="step-num">1</span>
+              <span>导入勘察报告</span>
+            </div>
+            <div class="welcome-arrow">→</div>
+            <div class="welcome-step">
+              <span class="step-num">2</span>
+              <span>管理站点</span>
+            </div>
+            <div class="welcome-arrow">→</div>
+            <div class="welcome-step">
+              <span class="step-num">3</span>
+              <span>手机扫码上传照片</span>
+            </div>
+            <div class="welcome-arrow">→</div>
+            <div class="welcome-step">
+              <span class="step-num">4</span>
+              <span>生成PPT报告</span>
+            </div>
+          </div>
+        </div>
+      </el-card>
+
       <!-- 项目概览卡片 -->
       <el-card class="overview-card">
         <div class="overview-header">
@@ -183,15 +302,30 @@ onMounted(() => {
   gap: 16px;
 }
 
-.header-info h1 {
-  margin: 0 0 4px;
+.project-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.project-title h1 {
+  margin: 0;
   font-size: 24px;
   font-weight: 600;
   color: #1f2937;
 }
 
+.edit-btn {
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.edit-btn:hover {
+  opacity: 1;
+}
+
 .project-code {
-  margin: 0;
+  margin: 4px 0 0;
   font-size: 14px;
   color: #6b7280;
 }
@@ -200,6 +334,72 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 24px;
+}
+
+.welcome-card {
+  border-radius: 12px;
+  border-color: #79bbff;
+  background: linear-gradient(135deg, #ecf5ff 0%, #d9ecff 100%);
+}
+
+.welcome-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.welcome-icon {
+  font-size: 32px;
+}
+
+.welcome-text h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.welcome-text p {
+  margin: 0;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.welcome-steps {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.welcome-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #1f2937;
+}
+
+.step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #409eff 0%, #66b1ff 100%);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.welcome-arrow {
+  color: #6b7280;
+  font-size: 14px;
 }
 
 .overview-card {

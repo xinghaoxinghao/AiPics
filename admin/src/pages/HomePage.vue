@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, type FormRules, type FormInstance } from 'element-plus'
-import { Plus, Document, Picture } from '@element-plus/icons-vue'
+import { Plus, Document, Picture, Search } from '@element-plus/icons-vue'
 import { getProjects, createProject } from '@/api/project'
 import type { Project } from '@/types'
 
 const router = useRouter()
 const projects = ref<Project[]>([])
 const loading = ref(false)
+const searchText = ref('')
 
 // 新建项目对话框状态
 const dialogVisible = ref(false)
@@ -17,7 +18,8 @@ const projectFormRef = ref<FormInstance>()
 const form = reactive({
   code: '',
   name: '',
-  description: ''
+  description: '',
+  jumpToDetail: true
 })
 
 // 表单验证规则
@@ -91,12 +93,27 @@ const loadProjects = async () => {
   }
 }
 
+// 搜索过滤后的项目列表
+const filteredProjects = computed(() => {
+  if (!searchText.value.trim()) {
+    return projects.value
+  }
+  const keyword = searchText.value.toLowerCase()
+  return projects.value.filter(
+    (p) =>
+      p.name.toLowerCase().includes(keyword) ||
+      p.code.toLowerCase().includes(keyword) ||
+      (p.description && p.description.toLowerCase().includes(keyword))
+  )
+})
+
 // 打开新建项目对话框
 const handleCreateProject = () => {
   dialogVisible.value = true
   form.code = generateProjectCode()
   form.name = ''
   form.description = ''
+  form.jumpToDetail = true
 }
 
 // 关闭对话框并重置表单
@@ -132,6 +149,9 @@ const submitProject = async () => {
       projects.value.unshift(newProject)
       ElMessage.success('项目创建成功！')
       closeDialog()
+      if (form.jumpToDetail) {
+        router.push(`/projects/${newProject.id}`)
+      }
     } catch (error) {
       ElMessage.error('创建项目失败，请重试')
     } finally {
@@ -158,15 +178,27 @@ onMounted(() => {
 <template>
   <div class="project-list">
     <div class="page-header">
-      <h1>项目管理</h1>
-      <el-button type="primary" :icon="Plus" @click="handleCreateProject">
-        新建项目
-      </el-button>
+      <div class="header-left">
+        <h1>项目管理</h1>
+        <span class="project-count">共 {{ projects.length }} 个项目</span>
+      </div>
+      <div class="header-actions">
+        <el-input
+          v-model="searchText"
+          placeholder="搜索项目名称 / 编号"
+          clearable
+          :prefix-icon="Search"
+          class="search-input"
+        />
+        <el-button type="primary" :icon="Plus" @click="handleCreateProject">
+          新建项目
+        </el-button>
+      </div>
     </div>
 
     <div v-loading="loading" class="project-grid">
       <el-card 
-        v-for="project in projects" 
+        v-for="project in filteredProjects" 
         :key="project.id"
         class="project-card"
         shadow="hover"
@@ -196,6 +228,11 @@ onMounted(() => {
           <span class="create-time">创建于 {{ formatDate(project.createdAt) }}</span>
         </div>
       </el-card>
+
+      <div v-if="filteredProjects.length === 0 && !loading" class="empty-state">
+        <div class="empty-icon">📭</div>
+        <p class="empty-text">{{ searchText ? '没有找到匹配的项目' : '还没有项目，点击右上角「新建项目」开始' }}</p>
+      </div>
     </div>
 
     <!-- 新建项目对话框 -->
@@ -247,6 +284,9 @@ onMounted(() => {
             resize="none"
           />
         </el-form-item>
+        <el-form-item label-width="0" prop="jumpToDetail">
+          <el-checkbox v-model="form.jumpToDetail">创建成功后自动跳转到项目详情页</el-checkbox>
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="closeDialog">取消</el-button>
@@ -268,6 +308,13 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
+  gap: 16px;
+}
+
+.header-left {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
 }
 
 .page-header h1 {
@@ -277,10 +324,47 @@ onMounted(() => {
   color: #1f2937;
 }
 
+.project-count {
+  font-size: 13px;
+  color: #9ca3af;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.search-input {
+  width: 280px;
+}
+
 .project-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   gap: 24px;
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background: #f9fafb;
+  border-radius: 12px;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.empty-text {
+  margin: 0;
+  font-size: 14px;
+  color: #6b7280;
 }
 
 .project-card {
