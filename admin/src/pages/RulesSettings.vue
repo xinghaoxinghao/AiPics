@@ -44,6 +44,13 @@ const saveRule = () => {
   dialogVisible.value = false
 }
 
+const copyVariable = (key: string) => {
+  if (typeof navigator !== 'undefined' && navigator.clipboard) {
+    navigator.clipboard.writeText(`{${key}}`)
+    ElMessage.success(`已复制 {${key}}`)
+  }
+}
+
 const variables = [
   { key: 'project_code', desc: '项目编号' },
   { key: 'site_code', desc: '站点编号' },
@@ -68,7 +75,7 @@ onMounted(() => {
     <el-card class="variables-card">
       <h3>可用变量</h3>
       <div class="variables-grid">
-        <div v-for="v in variables" :key="v.key" class="variable-item" @click="navigator.clipboard.writeText(`{${v.key}}`)">
+        <div v-for="v in variables" :key="v.key" class="variable-item" @click="copyVariable(v.key)">
           <code>{ {{ v.key }} }</code>
           <span>{{ v.desc }}</span>
         </div>

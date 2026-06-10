@@ -1,14 +1,37 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus, Document, Picture, Setting, Download } from '@element-plus/icons-vue'
-import { getProjects } from '@/api/project'
+import { ElMessage, type FormRules, type FormInstance } from 'element-plus'
+import { Plus, Document, Picture } from '@element-plus/icons-vue'
+import { getProjects, createProject } from '@/api/project'
 import type { Project } from '@/types'
 
 const router = useRouter()
 const projects = ref<Project[]>([])
 const loading = ref(false)
+
+// 新建项目对话框状态
+const dialogVisible = ref(false)
+const dialogLoading = ref(false)
+const projectFormRef = ref<FormInstance>()
+const form = reactive({
+  code: '',
+  name: '',
+  description: ''
+})
+
+// 表单验证规则
+const rules: FormRules = {
+  code: [
+    { required: true, message: '项目编号不能为空', trigger: 'blur' },
+    { min: 3, max: 30, message: '项目编号长度为 3 到 30 个字符', trigger: 'blur' },
+    { pattern: /^[A-Za-z0-9_-]+$/, message: '项目编号只能包含字母、数字、下划线和短横线', trigger: 'blur' }
+  ],
+  name: [
+    { required: true, message: '项目名称不能为空', trigger: 'blur' },
+    { min: 2, max: 100, message: '项目名称长度为 2 到 100 个字符', trigger: 'blur' }
+  ]
+}
 
 // 模拟数据
 const mockProjects: Project[] = [
@@ -44,6 +67,15 @@ const mockProjects: Project[] = [
   }
 ]
 
+// 生成项目编号
+const generateProjectCode = () => {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const random = String(Math.floor(Math.random() * 1000)).padStart(3, '0')
+  return `PROJ${year}${month}${random}`
+}
+
 // 加载项目列表
 const loadProjects = async () => {
   loading.value = true
@@ -59,16 +91,53 @@ const loadProjects = async () => {
   }
 }
 
-// 创建新项目
+// 打开新建项目对话框
 const handleCreateProject = () => {
-  ElMessageBox.prompt('请输入项目名称', '新建项目', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    inputPattern: /\S+/,
-    inputErrorMessage: '项目名称不能为空'
-  }).then(({ value }) => {
-    ElMessage.success(`项目 "${value}" 创建成功`)
-  }).catch(() => {})
+  dialogVisible.value = true
+  form.code = generateProjectCode()
+  form.name = ''
+  form.description = ''
+}
+
+// 关闭对话框并重置表单
+const closeDialog = () => {
+  dialogVisible.value = false
+  projectFormRef.value?.resetFields()
+}
+
+// 提交新建项目
+const submitProject = async () => {
+  if (!projectFormRef.value) return
+  await projectFormRef.value.validate(async (valid) => {
+    if (!valid) return
+    try {
+      dialogLoading.value = true
+      const newProject: Project = {
+        id: `proj-${Date.now()}`,
+        code: form.code,
+        name: form.name,
+        description: form.description,
+        createdAt: new Date().toISOString(),
+        qrcodeUrl: `https://picsum.photos/200/200?random=${Date.now()}`,
+        siteCount: 0,
+        photoCount: 0
+      }
+      // 调用API创建项目（暂时注释，使用模拟数据）
+      // const response = await createProject({
+      //   code: form.code,
+      //   name: form.name,
+      //   description: form.description
+      // })
+      // projects.value.unshift(response)
+      projects.value.unshift(newProject)
+      ElMessage.success('项目创建成功！')
+      closeDialog()
+    } catch (error) {
+      ElMessage.error('创建项目失败，请重试')
+    } finally {
+      dialogLoading.value = false
+    }
+  })
 }
 
 // 查看项目详情
@@ -128,6 +197,64 @@ onMounted(() => {
         </div>
       </el-card>
     </div>
+
+    <!-- 新建项目对话框 -->
+    <el-dialog
+      v-model="dialogVisible"
+      title="新建项目"
+      width="560px"
+      :close-on-click-modal="false"
+      @close="closeDialog"
+    >
+      <el-form
+        ref="projectFormRef"
+        :model="form"
+        :rules="rules"
+        label-width="100px"
+        label-position="right"
+      >
+        <el-form-item label="项目编号" prop="code">
+          <el-input
+            v-model="form.code"
+            placeholder="请输入项目编号"
+            clearable
+            maxlength="30"
+            show-word-limit
+          />
+          <template #tip>
+            <div class="form-tip">
+              项目编号必须唯一，建议格式：PROJ + 年份 + 序号（如：PROJ2024001）
+            </div>
+          </template>
+        </el-form-item>
+        <el-form-item label="项目名称" prop="name">
+          <el-input
+            v-model="form.name"
+            placeholder="请输入项目名称"
+            clearable
+            maxlength="100"
+            show-word-limit
+          />
+        </el-form-item>
+        <el-form-item label="项目描述" prop="description">
+          <el-input
+            v-model="form.description"
+            type="textarea"
+            :rows="4"
+            placeholder="请输入项目描述（选填）"
+            maxlength="500"
+            show-word-limit
+            resize="none"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="closeDialog">取消</el-button>
+        <el-button type="primary" :loading="dialogLoading" @click="submitProject">
+          创建项目
+        </el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -246,5 +373,12 @@ onMounted(() => {
 .create-time {
   font-size: 13px;
   color: #9ca3af;
+}
+
+.form-tip {
+  font-size: 12px;
+  color: #9ca3af;
+  line-height: 1.5;
+  margin-top: 2px;
 }
 </style>
