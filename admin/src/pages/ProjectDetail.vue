@@ -8,10 +8,11 @@ import {
   Picture,
   Upload,
   Download,
-  Setting,
-  Edit
+  Edit,
+  Refresh,
+  Link
 } from '@element-plus/icons-vue'
-import { getProjects, updateProject } from '@/store'
+import { getProjects, updateProject, refreshQRCode, generateMobileUrl, exportProjectData } from '@/store'
 import type { Project } from '@/types'
 
 const route = useRoute()
@@ -19,6 +20,7 @@ const router = useRouter()
 const projectId = route.params.id as string
 const loading = ref(false)
 const project = ref<Project | null>(null)
+const qrRefreshing = ref(false)
 
 // 判断是否为空项目
 const isEmptyProject = computed(() => {
@@ -26,7 +28,10 @@ const isEmptyProject = computed(() => {
   return project.value.siteCount === 0 && project.value.photoCount === 0
 })
 
-// 加载项目详情（从 store 读取）
+// 手机端扫码URL
+const mobileUrl = computed(() => generateMobileUrl(projectId))
+
+// 加载项目详情
 const loadProject = () => {
   loading.value = true
   try {
@@ -35,7 +40,6 @@ const loadProject = () => {
     if (found) {
       project.value = found
     } else {
-      // 找不到项目则显示错误
       ElMessage.warning('项目不存在或已被删除')
       setTimeout(() => router.push('/'), 1500)
     }
@@ -65,15 +69,62 @@ const editProjectName = async () => {
   }
 }
 
-// 功能菜单（使用当前 projectId，保证项目数据隔离）
+// 刷新二维码
+const handleRefreshQR = async () => {
+  if (!project.value || qrRefreshing.value) return
+  qrRefreshing.value = true
+  try {
+    const newQr = await refreshQRCode(project.value.id)
+    project.value.qrcodeUrl = newQr
+    ElMessage.success('二维码已刷新')
+  } catch {
+    ElMessage.error('刷新二维码失败')
+  } finally {
+    qrRefreshing.value = false
+  }
+}
+
+// 复制URL
+const handleCopyUrl = async () => {
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(mobileUrl.value)
+    } else {
+      const ta = document.createElement('textarea')
+      ta.value = mobileUrl.value
+      document.body.appendChild(ta)
+      ta.select()
+      document.execCommand('copy')
+      document.body.removeChild(ta)
+    }
+    ElMessage.success('URL已复制到剪贴板')
+  } catch {
+    ElMessage.warning('复制失败，请手动复制')
+  }
+}
+
+// 导出项目数据（下载JSON文件）
+const handleExportData = () => {
+  if (!project.value) return
+  try {
+    const json = exportProjectData(project.value.id)
+    const blob = new Blob([json], { type: 'application/json;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `project-${project.value.code}-${Date.now()}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    ElMessage.success('项目数据已导出，请将文件发送到手机端导入')
+  } catch {
+    ElMessage.error('导出失败')
+  }
+}
+
+// 功能菜单
 const menuItems = computed(() => [
-  {
-    key: 'import',
-    icon: Upload,
-    title: '勘察报告导入',
-    desc: '上传Word/Excel/PDF文件，自动解析项目信息和站点列表',
-    path: `/projects/${projectId}/import`
-  },
   {
     key: 'sites',
     icon: Document,
@@ -87,13 +138,6 @@ const menuItems = computed(() => [
     title: '照片管理',
     desc: '查看和管理所有上传的照片，按站点分组显示',
     path: `/projects/${projectId}/photos`
-  },
-  {
-    key: 'ppt',
-    icon: Download,
-    title: '生成PPT报告',
-    desc: '一键生成包含封面、站点照片和附录的PPT文件',
-    path: `/projects/${projectId}/ppt`
   }
 ])
 
@@ -166,10 +210,40 @@ onMounted(() => {
           <div class="overview-info">
             <h2>项目概览</h2>
             <p class="project-desc">{{ project.description || '暂无项目描述' }}</p>
+            <p class="project-meta">
+              <span class="label">项目编号：</span>
+              <span class="value">{{ project.code }}</span>
+              <span class="label">创建时间：</span>
+              <span class="value">{{ new Date(project.createdAt).toLocaleString('zh-CN') }}</span>
+            </p>
           </div>
           <div class="qrcode-large">
-            <img :src="project.qrcodeUrl" alt="项目二维码" />
-            <p class="qrcode-tip">扫码进入手机端上传</p>
+            <div class="qrcode-wrapper">
+              <img
+                v-if="project.qrcodeUrl"
+                :src="project.qrcodeUrl"
+                alt="项目二维码"
+              />
+              <div v-else class="qrcode-placeholder">
+                <el-icon :size="48"><Picture /></el-icon>
+                <p>二维码生成中...</p>
+              </div>
+            </div>
+            <p class="qrcode-tip">📱 使用手机浏览器扫码打开</p>
+            <div class="qrcode-actions">
+              <el-button size="small" :icon="Refresh" @click="handleRefreshQR" :loading="qrRefreshing">
+                刷新二维码
+              </el-button>
+              <el-button size="small" :icon="Link" @click="handleCopyUrl">
+                复制URL
+              </el-button>
+            </div>
+            <el-input
+              class="qr-url-input"
+              :model-value="mobileUrl"
+              readonly
+              size="small"
+            />
           </div>
         </div>
         <div class="stats-grid">
@@ -191,13 +265,13 @@ onMounted(() => {
               <div class="stat-label">照片数量</div>
             </div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card" @click="handleExportData" style="cursor: pointer">
             <div class="stat-icon orange">
-              <el-icon><Setting /></el-icon>
+              <el-icon><Download /></el-icon>
             </div>
             <div class="stat-content">
-              <div class="stat-number">{{ new Date(project.createdAt).toLocaleDateString('zh-CN') }}</div>
-              <div class="stat-label">创建时间</div>
+              <div class="stat-text">导出数据</div>
+              <div class="stat-label">下载JSON文件</div>
             </div>
           </div>
         </div>
@@ -374,21 +448,82 @@ onMounted(() => {
   line-height: 1.6;
 }
 
-.qrcode-large {
-  text-align: center;
-}
-
-.qrcode-large img {
-  width: 160px;
-  height: 160px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.qrcode-tip {
+.project-meta {
   margin: 12px 0 0;
   font-size: 13px;
   color: #6b7280;
+  line-height: 1.8;
+}
+
+.project-meta .label {
+  color: #9ca3af;
+}
+
+.project-meta .value {
+  color: #1f2937;
+  font-weight: 500;
+  margin-right: 16px;
+}
+
+.qrcode-large {
+  text-align: center;
+  min-width: 220px;
+}
+
+.qrcode-wrapper {
+  width: 180px;
+  height: 180px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 1px solid #f3f4f6;
+}
+
+.qrcode-wrapper img {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+}
+
+.qrcode-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  gap: 8px;
+}
+
+.qrcode-placeholder p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.qrcode-tip {
+  margin: 12px 0 8px;
+  font-size: 13px;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+.qrcode-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.qr-url-input {
+  margin-top: 4px;
+  width: 220px;
+}
+
+.qr-url-input :deep(.el-input__wrapper) {
+  font-size: 12px;
 }
 
 .stats-grid {
@@ -437,6 +572,14 @@ onMounted(() => {
 .stat-number {
   font-size: 28px;
   font-weight: 700;
+  color: #1f2937;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.stat-text {
+  font-size: 18px;
+  font-weight: 600;
   color: #1f2937;
   line-height: 1;
   margin-bottom: 4px;

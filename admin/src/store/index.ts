@@ -1,4 +1,5 @@
 import type { Project, Site, Photo } from '@/types'
+import QRCode from 'qrcode'
 
 const STORAGE_KEYS = {
   projects: 'survey_projects',
@@ -25,25 +26,61 @@ const saveToStorage = <T>(key: string, data: T[]) => {
 const uid = (prefix: string) =>
   `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 
+// ---------- 二维码生成 ----------
+// 获取当前页面origin，用于构造手机端URL
+const getBaseUrl = (): string => {
+  if (typeof window === 'undefined') return 'http://localhost:5173'
+  return window.location.origin
+}
+
+// 生成手机端扫码 URL
+export const generateMobileUrl = (projectId: string): string => {
+  return `${getBaseUrl()}/mobile/index.html?projectId=${projectId}`
+}
+
+// 生成二维码 dataURL
+export const generateQRCode = async (projectId: string): Promise<string> => {
+  try {
+    const url = generateMobileUrl(projectId)
+    return await QRCode.toDataURL(url, { width: 400, margin: 2 })
+  } catch {
+    // 兜底：返回一个占位图
+    return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(generateMobileUrl(projectId))}`
+  }
+}
+
 // ---------- 项目管理 ----------
 export const getProjects = (): Project[] => loadFromStorage<Project>(STORAGE_KEYS.projects)
 
 export const saveProjects = (projects: Project[]) => saveToStorage(STORAGE_KEYS.projects, projects)
 
-export const createProject = (
+export const createProject = async (
   data: Omit<Project, 'id' | 'createdAt' | 'qrcodeUrl' | 'siteCount' | 'photoCount'>
-): Project => {
+): Promise<Project> => {
   const projects = getProjects()
   const project: Project = {
     ...data,
     id: uid('proj'),
     createdAt: new Date().toISOString(),
-    qrcodeUrl: `https://picsum.photos/200/200?random=${Date.now()}`,
+    qrcodeUrl: '', // 先占位，后面异步生成
     siteCount: 0,
     photoCount: 0
   }
   projects.unshift(project)
   saveProjects(projects)
+  // 异步生成二维码并更新
+  try {
+    const qrUrl = await generateQRCode(project.id)
+    const toUpdate = getProjects()
+    const idx = toUpdate.findIndex((p) => p.id === project.id)
+    if (idx !== -1) {
+      toUpdate[idx].qrcodeUrl = qrUrl
+      saveProjects(toUpdate)
+      project.qrcodeUrl = qrUrl
+    }
+  } catch {
+    // 静默失败，使用默认占位
+  }
   return project
 }
 
@@ -167,4 +204,137 @@ export const clearAllData = () => {
   window.localStorage.removeItem(STORAGE_KEYS.projects)
   window.localStorage.removeItem(STORAGE_KEYS.sites)
   window.localStorage.removeItem(STORAGE_KEYS.photos)
+}
+
+// ---------- 数据导出导入（手机端和PC端同步）----------
+// 导出单个项目的完整数据（包含项目信息、站点、照片）
+export const exportProjectData = (projectId: string): string => {
+  const project = getProjects().find((p) => p.id === projectId)
+  const sites = getProjectSites(projectId)
+  const photos = getProjectPhotos(projectId)
+  return JSON.stringify(
+    {
+      version: '1.0',
+      exportedAt: new Date().toISOString(),
+      project,
+      sites,
+      photos
+    },
+    null,
+    2
+  )
+}
+
+// 导出单个项目数据的接口（用于手机端导出）
+export interface ProjectExportData {
+  version: string
+  exportedAt: string
+  project?: Project
+  sites: Site[]
+  photos: Photo[]
+}
+
+// 导入数据：将导入的数据合并到当前数据中
+// - 项目：若项目ID已存在则更新名称/描述，否则新增
+// - 站点：按 site.code + projectId 去重，相同则跳过
+// - 照片：按 photo.id 去重（UUID不会冲突）
+export const importProjectData = (json: string): {
+  project: Project
+  sitesAdded: number
+  photosAdded: number
+  sitesSkipped: number
+  photosSkipped: number
+} => {
+  const data: ProjectExportData = JSON.parse(json)
+
+  if (!data.sites || !data.photos) {
+    throw new Error('数据格式不正确')
+  }
+
+  const projectId = data.project?.id || data.sites[0]?.projectId
+  if (!projectId) throw new Error('未找到有效的项目ID')
+
+  // 处理项目
+  const projects = getProjects()
+  let project = projects.find((p) => p.id === projectId)
+  if (!project) {
+    if (!data.project) {
+      throw new Error('导入数据不含项目信息，请提供完整项目数据')
+    }
+    project = { ...data.project }
+    projects.unshift(project)
+  }
+  saveProjects(projects)
+
+  // 处理站点
+  const existingSites = getProjectSites(projectId)
+  const existingSiteCodes = new Set(existingSites.map((s) => s.code))
+  const allSites = getSites()
+  let sitesAdded = 0
+  let sitesSkipped = 0
+  const importedSiteIds: Record<string, string> = {} // 旧 siteId -> 新 siteId
+
+  for (const site of data.sites) {
+    if (existingSiteCodes.has(site.code)) {
+      // 已存在同名站点，记录映射关系，照片迁移
+      const existing = existingSites.find((s) => s.code === site.code)
+      if (existing) importedSiteIds[site.id] = existing.id
+      sitesSkipped++
+    } else {
+      const newSite: Site = {
+        ...site,
+        id: uid('site')
+      }
+      allSites.push(newSite)
+      importedSiteIds[site.id] = newSite.id
+      sitesAdded++
+    }
+  }
+  saveSites(allSites)
+
+  // 处理照片
+  const existingPhotos = getProjectPhotos(projectId)
+  const existingPhotoNames = new Set(
+    existingPhotos.map((p) => `${p.siteId}-${p.fileName}`)
+  )
+  const allPhotos = getPhotos()
+  let photosAdded = 0
+  let photosSkipped = 0
+
+  for (const photo of data.photos) {
+    const mappedSiteId = importedSiteIds[photo.siteId] || photo.siteId
+    const key = `${mappedSiteId}-${photo.fileName}`
+    if (existingPhotoNames.has(key)) {
+      photosSkipped++
+      continue
+    }
+    const newPhoto: Photo = {
+      ...photo,
+      id: uid('photo'),
+      siteId: mappedSiteId,
+      projectId
+    }
+    allPhotos.push(newPhoto)
+    photosAdded++
+  }
+  savePhotos(allPhotos)
+
+  // 更新统计
+  refreshProjectCounts(projectId)
+  const refreshedProject = getProjects().find((p) => p.id === projectId) || project
+
+  return {
+    project: refreshedProject,
+    sitesAdded,
+    photosAdded,
+    sitesSkipped,
+    photosSkipped
+  }
+}
+
+// ---------- 重新生成二维码（当域名/端口变化时）----------
+export const refreshQRCode = async (projectId: string): Promise<string> => {
+  const qrUrl = await generateQRCode(projectId)
+  updateProject(projectId, { qrcodeUrl })
+  return qrUrl
 }

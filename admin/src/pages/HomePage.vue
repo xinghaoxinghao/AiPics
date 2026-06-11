@@ -111,7 +111,7 @@ const submitProject = async () => {
         ElMessage.error('项目编号已存在，请使用其他编号')
         return
       }
-      const newProject = storeCreateProject({
+      const newProject = await storeCreateProject({
         code: form.code,
         name: form.name,
         description: form.description

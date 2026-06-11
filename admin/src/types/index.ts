@@ -35,6 +35,11 @@ export interface Photo {
   remark?: string
   isManualNamed: boolean
   uploadedAt: string
+  // EXIF 信息
+  takenAt?: string         // 拍摄时间
+  latitude?: number        // 纬度
+  longitude?: number       // 经度
+  location?: string        // 位置描述
 }
 
 // 命名规则类型
