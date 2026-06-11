@@ -34,18 +34,19 @@ const getBaseUrl = (): string => {
 }
 
 // 生成手机端扫码 URL
-export const generateMobileUrl = (projectId: string): string => {
-  return `${getBaseUrl()}/mobile/index.html?projectId=${projectId}`
+export const generateMobileUrl = (project: { id: string; name: string; code: string }): string => {
+  const { id: projectId, name, code } = project
+  return `${getBaseUrl()}/mobile/index.html?projectId=${projectId}&name=${encodeURIComponent(name)}&code=${encodeURIComponent(code)}`
 }
 
 // 生成二维码 dataURL
-export const generateQRCode = async (projectId: string): Promise<string> => {
+export const generateQRCode = async (project: { id: string; name: string; code: string }): Promise<string> => {
   try {
-    const url = generateMobileUrl(projectId)
+    const url = generateMobileUrl(project)
     return await QRCode.toDataURL(url, { width: 400, margin: 2 })
   } catch {
     // 兜底：返回一个占位图
-    return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(generateMobileUrl(projectId))}`
+    return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(generateMobileUrl(project))}`
   }
 }
 
@@ -70,7 +71,7 @@ export const createProject = async (
   saveProjects(projects)
   // 异步生成二维码并更新
   try {
-    const qrUrl = await generateQRCode(project.id)
+    const qrUrl = await generateQRCode(project)
     const toUpdate = getProjects()
     const idx = toUpdate.findIndex((p) => p.id === project.id)
     if (idx !== -1) {
@@ -333,8 +334,15 @@ export const importProjectData = (json: string): {
 }
 
 // ---------- 重新生成二维码（当域名/端口变化时）----------
-export const refreshQRCode = async (projectId: string): Promise<string> => {
-  const qrUrl = await generateQRCode(projectId)
-  updateProject(projectId, { qrcodeUrl })
-  return qrUrl
+export const refreshQRCode = async (project: Project): Promise<Project | null> => {
+  const qrUrl = await generateQRCode(project)
+  return updateProject(project.id, { qrcodeUrl })
+}
+
+// ---------- 获取单个项目的完整数据（包含项目信息、站点、照片）----------
+export const getProjectData = (projectId: string): { project?: Project; sites: Site[]; photos: Photo[] } => {
+  const project = getProjects().find((p) => p.id === projectId)
+  const sites = getProjectSites(projectId)
+  const photos = getProjectPhotos(projectId)
+  return { project, sites, photos }
 }

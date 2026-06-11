@@ -12,7 +12,7 @@ import {
   Refresh,
   Link
 } from '@element-plus/icons-vue'
-import { getProjects, updateProject, refreshQRCode, generateMobileUrl, exportProjectData } from '@/store'
+import { getProjects, updateProject, refreshQRCode, generateMobileUrl, exportProjectData, importProjectData } from '@/store'
 import type { Project } from '@/types'
 
 const route = useRoute()
@@ -29,7 +29,10 @@ const isEmptyProject = computed(() => {
 })
 
 // 手机端扫码URL
-const mobileUrl = computed(() => generateMobileUrl(projectId))
+const mobileUrl = computed(() => {
+  if (!project.value) return ''
+  return generateMobileUrl(project.value)
+})
 
 // 加载项目详情
 const loadProject = () => {
@@ -74,9 +77,13 @@ const handleRefreshQR = async () => {
   if (!project.value || qrRefreshing.value) return
   qrRefreshing.value = true
   try {
-    const newQr = await refreshQRCode(project.value.id)
-    project.value.qrcodeUrl = newQr
-    ElMessage.success('二维码已刷新')
+    const updated = await refreshQRCode(project.value)
+    if (updated) {
+      project.value = updated
+      ElMessage.success('二维码已刷新')
+    } else {
+      ElMessage.error('刷新二维码失败')
+    }
   } catch {
     ElMessage.error('刷新二维码失败')
   } finally {
@@ -121,6 +128,24 @@ const handleExportData = () => {
   } catch {
     ElMessage.error('导出失败')
   }
+}
+
+const handleOpenMobile = () => {
+  if (!mobileUrl.value) return
+  window.open(mobileUrl.value, '_blank')
+}
+
+const handleImportData = async (file: File) => {
+  try {
+    const text = await file.text()
+    const result = importProjectData(text)
+    ElMessage.success(`导入成功: 新增 ${result.sitesAdded} 个站点, ${result.photosAdded} 张照片 (跳过 ${result.sitesSkipped + result.photosSkipped} 项)`)
+    const refreshed = getProjects().find((p) => p.id === projectId)
+    if (refreshed) project.value = refreshed
+  } catch (err: any) {
+    ElMessage.error('导入失败: ' + (err?.message || '格式不正确'))
+  }
+  return false
 }
 
 // 功能菜单
@@ -229,7 +254,7 @@ onMounted(() => {
                 <p>二维码生成中...</p>
               </div>
             </div>
-            <p class="qrcode-tip">📱 使用手机浏览器扫码打开</p>
+            <p class="qrcode-tip">📱 使用手机浏览器扫码 或 点击下方链接打开</p>
             <div class="qrcode-actions">
               <el-button size="small" :icon="Refresh" @click="handleRefreshQR" :loading="qrRefreshing">
                 刷新二维码
@@ -244,6 +269,18 @@ onMounted(() => {
               readonly
               size="small"
             />
+            <div class="open-mobile-btn">
+              <el-button type="primary" size="small" :icon="Link" @click="handleOpenMobile" target="_blank">
+                点击打开手机端页面
+              </el-button>
+              <el-upload
+                :show-file-list="false"
+                :before-upload="handleImportData"
+                accept=".json"
+              >
+                <el-button size="small" :icon="Upload">导入手机端数据</el-button>
+              </el-upload>
+            </div>
           </div>
         </div>
         <div class="stats-grid">
@@ -524,6 +561,25 @@ onMounted(() => {
 
 .qr-url-input :deep(.el-input__wrapper) {
   font-size: 12px;
+  cursor: pointer;
+}
+
+.qr-url-input :deep(.el-input__inner) {
+  color: #409eff;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.qr-url-input :deep(.el-input__inner):hover {
+  color: #337ecc;
+}
+
+.open-mobile-btn {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
 }
 
 .stats-grid {

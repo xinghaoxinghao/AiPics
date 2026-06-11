@@ -19,403 +19,296 @@
             background: #f5f6fa;
             min-height: 100vh;
             color: #1f2937;
-            padding-bottom: 80px;
+            padding-bottom: 24px;
         }
 
-        .header {
+        /* ============== 顶部项目信息卡片 ============== */
+        .project-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 24px 16px 20px;
-            border-radius: 0 0 20px 20px;
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
         }
 
-        .header h1 {
+        .project-card .name {
             font-size: 20px;
             font-weight: 600;
             margin-bottom: 6px;
+            word-break: break-all;
         }
 
-        .header p {
+        .project-card .code {
             font-size: 13px;
             opacity: 0.9;
-            line-height: 1.5;
+            margin-bottom: 14px;
         }
 
-        .header .stats {
+        .project-card .stats {
             display: flex;
-            gap: 16px;
-            margin-top: 14px;
+            gap: 12px;
         }
 
-        .header .stat {
+        .project-card .stat {
             background: rgba(255, 255, 255, 0.2);
             padding: 8px 14px;
             border-radius: 20px;
             font-size: 12px;
             backdrop-filter: blur(10px);
-        }
-
-        .header .stat strong {
-            font-size: 16px;
-            font-weight: 700;
-            margin-right: 4px;
-        }
-
-        .tab-bar {
-            display: flex;
-            background: white;
-            padding: 4px;
-            margin: 16px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        }
-
-        .tab-btn {
             flex: 1;
-            padding: 12px;
-            border: none;
-            background: transparent;
-            font-size: 14px;
-            font-weight: 500;
-            color: #6b7280;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
+            text-align: center;
         }
 
-        .tab-btn.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        .project-card .stat strong {
+            font-size: 18px;
+            font-weight: 700;
+            display: block;
         }
 
-        .content {
+        /* ============== 分区标题 ============== */
+        .section {
             padding: 0 16px;
+            margin-top: 20px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
         }
 
         .section-title {
             font-size: 15px;
             font-weight: 600;
-            margin-bottom: 12px;
             color: #374151;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
         }
 
         .section-title small {
             font-size: 12px;
             color: #9ca3af;
             font-weight: 400;
+            margin-left: 6px;
         }
 
-        /* 站点样式 */
+        /* ============== 按钮 ============== */
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary:active { transform: scale(0.98); }
+
+        .btn-secondary {
+            background: white;
+            color: #4b5563;
+            border: 1.5px solid #e5e7eb;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn-danger {
+            background: white;
+            color: #ef4444;
+            border: 1.5px solid #fee2e2;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn-block { width: 100%; }
+
+        /* ============== 站点卡片 ============== */
         .site-list {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
 
-        .site-item {
+        .site-card {
             background: white;
-            padding: 16px;
+            padding: 14px 16px;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .site-card .top {
             display: flex;
-            align-items: center;
-            gap: 12px;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 8px;
         }
 
-        .site-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 11px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            flex-shrink: 0;
-        }
-
-        .site-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .site-info .name {
+        .site-card .name {
             font-size: 15px;
             font-weight: 600;
-            margin-bottom: 4px;
             color: #1f2937;
+            word-break: break-all;
         }
 
-        .site-info .code {
-            font-size: 12px;
-            color: #9ca3af;
-        }
-
-        .site-info .address {
-            font-size: 12px;
-            color: #6b7280;
-            margin-top: 2px;
-        }
-
-        .site-photo-count {
-            background: #f3f4f6;
+        .site-card .photo-count {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             padding: 4px 10px;
             border-radius: 12px;
-            font-size: 12px;
-            color: #6b7280;
+            font-size: 11px;
+            font-weight: 600;
             flex-shrink: 0;
         }
 
-        .site-actions {
-            display: flex;
-            gap: 6px;
+        .site-card .meta {
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.6;
         }
 
-        .site-actions button {
-            border: none;
-            background: #f3f4f6;
+        .site-card .meta span { color: #9ca3af; margin-right: 4px; }
+
+        .site-card .actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .site-card .actions button {
+            flex: 1;
+            border: 1px solid #e5e7eb;
+            background: #fafafa;
+            color: #4b5563;
             padding: 6px 10px;
             border-radius: 8px;
             font-size: 12px;
-            color: #6b7280;
             cursor: pointer;
         }
 
-        .site-actions button.delete {
-            color: #ef4444;
-        }
+        .site-card .actions button.del { color: #ef4444; border-color: #fee2e2; }
 
-        /* 空状态 */
-        .empty {
-            text-align: center;
-            padding: 48px 20px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        }
-
-        .empty-icon {
-            font-size: 48px;
-            margin-bottom: 12px;
-        }
-
-        .empty h3 {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 6px;
-            color: #1f2937;
-        }
-
-        .empty p {
-            font-size: 13px;
-            color: #9ca3af;
+        /* ============== 照片区 ============== */
+        .photo-group {
             margin-bottom: 16px;
         }
 
-        /* 浮动按钮 */
-        .fab {
-            position: fixed;
-            right: 20px;
-            bottom: 20px;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            font-size: 28px;
-            font-weight: 300;
-            cursor: pointer;
-            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .photo-group-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            padding-left: 4px;
         }
 
-        .fab:active {
-            transform: scale(0.95);
-        }
-
-        /* 照片上传 */
-        .photo-selector {
+        .photo-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 8px;
-            margin-bottom: 16px;
         }
 
-        .photo-slot {
-            aspect-ratio: 1;
-            border: 2px dashed #d1d5db;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #9ca3af;
-            font-size: 12px;
-            cursor: pointer;
-            background: #fafafa;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.2s;
-        }
-
-        .photo-slot:active {
-            border-color: #667eea;
-            background: #f3f4ff;
-        }
-
-        .photo-slot .plus {
-            font-size: 32px;
-            font-weight: 200;
-            line-height: 1;
-            margin-bottom: 4px;
-        }
-
-        .photo-preview {
+        .photo-item {
             aspect-ratio: 1;
             border-radius: 10px;
             overflow: hidden;
-            position: relative;
             background: #000;
+            position: relative;
+            cursor: pointer;
         }
 
-        .photo-preview img {
+        .photo-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
 
-        .photo-preview .meta {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-            padding: 20px 8px 6px;
-            color: white;
-            font-size: 10px;
-            line-height: 1.4;
-        }
-
-        .photo-preview .delete-btn {
-            position: absolute;
-            top: 6px;
-            right: 6px;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: rgba(239, 68, 68, 0.9);
-            color: white;
-            border: none;
-            font-size: 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .photo-preview .device-tag {
+        .photo-item .badge {
             position: absolute;
             top: 6px;
             left: 6px;
             background: rgba(102, 126, 234, 0.9);
             color: white;
             font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 10px;
+            padding: 2px 6px;
+            border-radius: 8px;
         }
 
-        /* 表单 */
-        .form-group {
+        /* ============== 空状态 ============== */
+        .empty {
+            text-align: center;
+            padding: 32px 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .empty-icon {
+            font-size: 40px;
+            margin-bottom: 8px;
+        }
+
+        .empty h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #1f2937;
+        }
+
+        .empty p {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        /* ============== 导出导入区 ============== */
+        .sync-card {
             background: white;
             padding: 16px;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            margin-top: 8px;
+        }
+
+        .sync-card h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
             margin-bottom: 12px;
         }
 
-        .form-label {
-            display: block;
-            font-size: 13px;
-            font-weight: 500;
-            color: #374151;
-            margin-bottom: 8px;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 12px;
-            border: 1.5px solid #e5e7eb;
-            border-radius: 10px;
-            font-size: 15px;
-            background: #f9fafb;
-            outline: none;
-            transition: all 0.2s;
-        }
-
-        .form-input:focus {
-            border-color: #667eea;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        textarea.form-input {
-            resize: vertical;
-            min-height: 72px;
-            font-family: inherit;
-        }
-
-        .device-tags {
+        .sync-buttons {
             display: flex;
-            flex-wrap: wrap;
             gap: 8px;
-            margin-bottom: 8px;
+            flex-wrap: wrap;
         }
 
-        .device-tag-btn {
-            padding: 8px 14px;
-            border: 1.5px solid #e5e7eb;
-            background: white;
-            border-radius: 20px;
-            font-size: 13px;
-            color: #6b7280;
-            cursor: pointer;
-            transition: all 0.2s;
+        .sync-buttons button,
+        .sync-buttons label {
+            flex: 1;
+            min-width: 80px;
+            text-align: center;
         }
 
-        .device-tag-btn.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-color: transparent;
-        }
-
-        /* 模态框 */
-        .modal-overlay {
+        /* ============== Modal ============== */
+        .modal-backdrop {
             position: fixed;
             inset: 0;
             background: rgba(0, 0, 0, 0.5);
-            display: flex;
+            display: none;
             align-items: flex-end;
             justify-content: center;
             z-index: 200;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s;
         }
 
-        .modal-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
+        .modal-backdrop.show { display: flex; }
 
         .modal {
             background: white;
@@ -423,292 +316,298 @@
             max-width: 500px;
             border-radius: 20px 20px 0 0;
             padding: 24px 20px 32px;
-            transform: translateY(100%);
-            transition: transform 0.3s;
-            max-height: 85vh;
+            max-height: 88vh;
             overflow-y: auto;
+            animation: slideUp 0.25s ease;
         }
 
-        .modal-overlay.show .modal {
-            transform: translateY(0);
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
         }
 
         .modal h2 {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 600;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             color: #1f2937;
             text-align: center;
         }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+            margin-top: 14px;
+        }
+
+        .form-label:first-child { margin-top: 0; }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            background: #f9fafb;
+            outline: none;
+            font-family: inherit;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            border-color: #667eea;
+            background: white;
+        }
+
+        .form-textarea { resize: vertical; min-height: 70px; }
+
+        .form-input:read-only { color: #6b7280; background: #f3f4f6; }
 
         .modal-actions {
             display: flex;
             gap: 10px;
-            margin-top: 24px;
+            margin-top: 20px;
         }
 
-        .btn {
+        .modal-actions .btn-primary,
+        .modal-actions .btn-secondary {
             flex: 1;
-            padding: 14px;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 500;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-primary:active {
-            transform: scale(0.98);
-        }
-
-        .btn-secondary {
-            background: #f3f4f6;
-            color: #4b5563;
-        }
-
-        .btn-block {
-            width: 100%;
-        }
-
-        /* 通知 */
-        .toast {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(31, 41, 55, 0.95);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 14px;
-            z-index: 500;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            backdrop-filter: blur(10px);
-        }
-
-        .toast.show {
-            opacity: 1;
-        }
-
-        /* 照片详情 */
-        .photo-detail {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            margin-bottom: 16px;
-        }
-
-        .photo-detail img {
-            width: 100%;
-            max-height: 320px;
-            object-fit: contain;
-            background: #000;
-        }
-
-        .photo-detail .info {
-            padding: 14px 16px;
-        }
-
-        .photo-detail .info-row {
+        /* ============== 设备类型标签 ============== */
+        .device-tags {
             display: flex;
-            font-size: 13px;
-            margin-bottom: 8px;
-            color: #4b5563;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 6px;
         }
 
-        .photo-detail .info-row .label {
-            color: #9ca3af;
-            width: 70px;
-            flex-shrink: 0;
-        }
-
-        .photo-detail .info-row .value {
-            color: #1f2937;
-            flex: 1;
-            word-break: break-all;
-        }
-
-        /* 项目选择 */
-        .project-error {
-            background: white;
-            margin: 16px;
-            padding: 24px 20px;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        }
-
-        .project-error .icon {
-            font-size: 48px;
-            margin-bottom: 12px;
-        }
-
-        .project-error h2 {
-            font-size: 17px;
-            margin-bottom: 8px;
-            color: #1f2937;
-        }
-
-        .project-error p {
-            font-size: 13px;
-            color: #6b7280;
-            margin-bottom: 20px;
-            line-height: 1.6;
-        }
-
-        .project-url {
-            background: #f9fafb;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 11px;
-            color: #6b7280;
-            word-break: break-all;
-            margin-bottom: 16px;
-            text-align: left;
-        }
-
-        /* 导出区域 */
-        .export-section {
-            background: white;
-            padding: 20px 16px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            margin-top: 16px;
-            text-align: center;
-        }
-
-        .export-section h3 {
-            font-size: 15px;
-            margin-bottom: 8px;
-        }
-
-        .export-section p {
-            font-size: 12px;
-            color: #6b7280;
-            margin-bottom: 16px;
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        .small-btn {
-            padding: 10px 16px;
-            font-size: 13px;
-            border-radius: 8px;
+        .device-tag {
+            padding: 6px 12px;
             border: 1.5px solid #e5e7eb;
             background: white;
-            color: #4b5563;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #6b7280;
             cursor: pointer;
-            display: inline-block;
-            margin: 4px;
         }
 
-        .small-btn.primary {
+        .device-tag.active {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-color: transparent;
         }
 
-        .small-btn.danger {
-            color: #ef4444;
+        /* ============== 照片详情 Modal ============== */
+        .photo-detail-img {
+            width: 100%;
+            max-height: 280px;
+            object-fit: contain;
+            background: #000;
+            border-radius: 10px;
+            margin-bottom: 12px;
         }
+
+        .info-row {
+            display: flex;
+            font-size: 13px;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .info-row .label {
+            color: #9ca3af;
+            width: 64px;
+            flex-shrink: 0;
+        }
+
+        .info-row .value {
+            color: #1f2937;
+            flex: 1;
+            word-break: break-all;
+        }
+
+        .detail-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        /* ============== Toast ============== */
+        .toast {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: rgba(31, 41, 55, 0.95);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 13px;
+            z-index: 500;
+            opacity: 0;
+            transition: all 0.25s;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success { background: rgba(34, 197, 94, 0.95); }
+        .toast.error { background: rgba(239, 68, 68, 0.95); }
+
+        /* ============== 错误页 ============== */
+        .error-card {
+            background: white;
+            margin: 24px 16px;
+            padding: 28px 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .error-card .icon {
+            font-size: 54px;
+            margin-bottom: 12px;
+        }
+
+        .error-card h2 {
+            font-size: 17px;
+            margin-bottom: 8px;
+            color: #1f2937;
+        }
+
+        .error-card p {
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        /* ============== 文件上传隐藏 ============== */
+        .hidden-file { display: none; }
     </style>
 </head>
 <body>
-    <!-- 通知 Toast -->
     <div id="toast" class="toast"></div>
-
-    <!-- 主内容区 -->
     <div id="app"></div>
 
-    <!-- 添加站点模态框 -->
-    <div id="site-modal" class="modal-overlay">
+    <!-- 新增/编辑站点 Modal -->
+    <div id="site-modal" class="modal-backdrop">
         <div class="modal">
-            <h2 id="site-modal-title">新建站点</h2>
-            <div class="form-group" style="box-shadow: none; padding: 0; margin-bottom: 0">
-                <label class="form-label">站点名称 <span style="color:#ef4444">*</span></label>
-                <input id="site-name-input" class="form-input" placeholder="例如：XX路5G基站" />
+            <h2 id="site-modal-title">添加站点</h2>
+            <label class="form-label">站点名称 <span style="color:#ef4444">*</span></label>
+            <input id="site-name" class="form-input" placeholder="例如：XX路5G基站" />
 
-                <label class="form-label" style="margin-top: 14px">站点编号</label>
-                <input id="site-code-input" class="form-input" placeholder="自动生成，可修改" />
+            <label class="form-label">站点编号</label>
+            <input id="site-code" class="form-input" placeholder="自动生成，可修改" />
 
-                <label class="form-label" style="margin-top: 14px">站点地址</label>
-                <input id="site-address-input" class="form-input" placeholder="选填：站点详细地址" />
+            <label class="form-label">站点地址</label>
+            <input id="site-address" class="form-input" placeholder="选填" />
 
-                <label class="form-label" style="margin-top: 14px">机房类型</label>
-                <input id="site-room-input" class="form-input" placeholder="选填：机房/机柜/铁塔等" />
-            </div>
+            <label class="form-label">机房类型</label>
+            <select id="site-room" class="form-select">
+                <option value="">请选择（选填）</option>
+                <option value="核心机房">核心机房</option>
+                <option value="汇聚机房">汇聚机房</option>
+                <option value="接入机房">接入机房</option>
+                <option value="室外站">室外站</option>
+                <option value="其他">其他</option>
+            </select>
+
+            <label class="form-label">备注</label>
+            <textarea id="site-remark" class="form-textarea" placeholder="选填"></textarea>
+
             <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="closeSiteModal()">取消</button>
-                <button class="btn btn-primary" onclick="saveSite()">保存</button>
+                <button class="btn-secondary" onclick="closeSiteModal()">取消</button>
+                <button class="btn-primary" onclick="saveSite()">保存</button>
             </div>
         </div>
     </div>
 
-    <!-- 照片上传/编辑模态框 -->
-    <div id="photo-modal" class="modal-overlay">
+    <!-- 照片信息 Modal -->
+    <div id="photo-modal" class="modal-backdrop">
         <div class="modal">
-            <h2>照片信息</h2>
-            <div class="form-group" style="box-shadow: none; padding: 0; margin-bottom: 0">
-                <label class="form-label">选择站点 <span style="color:#ef4444">*</span></label>
-                <select id="photo-site-select" class="form-input">
-                    <option value="">请选择站点</option>
-                </select>
+            <h2 id="photo-modal-title">照片信息</h2>
+            <div id="photo-modal-preview"></div>
 
-                <label class="form-label" style="margin-top: 14px">设备类型（选填）</label>
-                <div class="device-tags" id="device-tag-list">
-                    <button type="button" class="device-tag-btn" data-type="机柜">机柜</button>
-                    <button type="button" class="device-tag-btn" data-type="天线">天线</button>
-                    <button type="button" class="device-tag-btn" data-type="电源">电源</button>
-                    <button type="button" class="device-tag-btn" data-type="传输">传输</button>
-                    <button type="button" class="device-tag-btn" data-type="接地">接地</button>
-                    <button type="button" class="device-tag-btn" data-type="环境">环境</button>
-                    <button type="button" class="device-tag-btn" data-type="其他">其他</button>
-                </div>
-                <input id="photo-device-input" class="form-input" placeholder="或自定义输入..." />
+            <label class="form-label">选择站点 <span style="color:#ef4444">*</span></label>
+            <select id="photo-site" class="form-select"></select>
 
-                <label class="form-label" style="margin-top: 14px">拍摄时间</label>
-                <input id="photo-time-input" class="form-input" readonly style="background: #f3f4f6" />
-
-                <label class="form-label" style="margin-top: 14px">GPS定位</label>
-                <input id="photo-gps-input" class="form-input" readonly style="background: #f3f4f6" />
-
-                <label class="form-label" style="margin-top: 14px">文件名称</label>
-                <input id="photo-name-input" class="form-input" placeholder="自动生成，可修改" />
-
-                <label class="form-label" style="margin-top: 14px">备注（选填）</label>
-                <textarea id="photo-remark-input" class="form-input" placeholder="添加备注信息..."></textarea>
+            <label class="form-label">设备类型</label>
+            <div class="device-tags" id="device-tags">
+                <button type="button" class="device-tag" data-v="机柜">机柜</button>
+                <button type="button" class="device-tag" data-v="天线">天线</button>
+                <button type="button" class="device-tag" data-v="电源">电源</button>
+                <button type="button" class="device-tag" data-v="传输">传输</button>
+                <button type="button" class="device-tag" data-v="接地">接地</button>
+                <button type="button" class="device-tag" data-v="环境">环境</button>
+                <button type="button" class="device-tag" data-v="其他">其他</button>
             </div>
+            <input id="photo-device" class="form-input" placeholder="或自定义设备类型" />
+
+            <label class="form-label">拍摄时间</label>
+            <input id="photo-time" class="form-input" readonly />
+
+            <label class="form-label">GPS 坐标</label>
+            <input id="photo-gps" class="form-input" readonly />
+
+            <label class="form-label">文件名称</label>
+            <input id="photo-filename" class="form-input" placeholder="自动生成，可修改" />
+
+            <label class="form-label">备注</label>
+            <textarea id="photo-remark" class="form-textarea" placeholder="选填"></textarea>
+
             <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="closePhotoModal()">取消</button>
-                <button class="btn btn-primary" onclick="savePhoto()">保存照片</button>
+                <button class="btn-secondary" onclick="closePhotoModal()">取消</button>
+                <button class="btn-primary" id="photo-save-btn" onclick="savePhoto()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 照片详情 Modal -->
+    <div id="detail-modal" class="modal-backdrop">
+        <div class="modal">
+            <h2>照片详情</h2>
+            <div id="detail-content"></div>
+            <div class="detail-actions">
+                <button class="btn-secondary" onclick="closeDetail()">关闭</button>
+                <button class="btn-secondary" id="detail-edit-btn">编辑</button>
+                <button class="btn-secondary" id="detail-delete-btn" style="color:#ef4444;border-color:#fee2e2">删除</button>
             </div>
         </div>
     </div>
 
     <script>
+        // ============== 存储键（与网页端完全一致，非常重要） ==============
+        const STORAGE = {
+            PROJECTS: 'survey_projects',
+            SITES: 'survey_sites',
+            PHOTOS: 'survey_photos'
+        };
+
         // ============== 应用状态 ==============
-        const STORAGE_PREFIX = 'survey_mobile_';
         const state = {
             projectId: null,
-            projectCode: '',
             projectName: '',
+            projectCode: '',
             sites: [],
             photos: [],
-            currentTab: 'sites', // sites | photos
             editingSiteId: null,
-            pendingPhotos: [], // 待保存的照片 {file, preview, dataUrl, fileName, deviceType, takenAt, latitude, longitude, address, remark, siteId}
-            currentPhotoIndex: -1
+            pendingPhotos: [],
+            pendingPhotoIndex: -1,
+            editingPhotoId: null
         };
 
         // ============== 工具函数 ==============
@@ -719,362 +618,446 @@
         function showToast(msg, type) {
             const toast = document.getElementById('toast');
             toast.textContent = msg;
-            toast.style.background = type === 'error' ? 'rgba(239, 68, 68, 0.95)' :
-                                     type === 'success' ? 'rgba(34, 197, 94, 0.95)' :
-                                     'rgba(31, 41, 55, 0.95)';
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2000);
+            toast.className = 'toast show' + (type ? ' ' + type : '');
+            clearTimeout(showToast._t);
+            showToast._t = setTimeout(() => {
+                toast.className = 'toast';
+            }, 2000);
         }
 
         function formatDate(iso) {
             if (!iso) return '-';
             try {
                 const d = new Date(iso);
-                return d.toLocaleString('zh-CN', { hour12: false });
+                if (isNaN(d.getTime())) return iso;
+                const pad = n => String(n).padStart(2, '0');
+                return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
             } catch (e) {
                 return iso;
             }
         }
 
-        // ============== 数据持久化 ==============
-        function getStorageKey(projectId) {
-            return `${STORAGE_PREFIX}${projectId}`;
+        function escapeHtml(str) {
+            if (str == null || str === '') return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
 
-        function saveProjectData() {
-            if (!state.projectId) return;
-            const data = {
-                projectId: state.projectId,
-                projectCode: state.projectCode,
-                projectName: state.projectName,
-                sites: state.sites,
-                photos: state.photos,
-                updatedAt: new Date().toISOString()
-            };
-            localStorage.setItem(getStorageKey(state.projectId), JSON.stringify(data));
-        }
-
-        function loadProjectData() {
-            if (!state.projectId) return;
+        function loadLS(key, fallback) {
             try {
-                const raw = localStorage.getItem(getStorageKey(state.projectId));
-                if (raw) {
-                    const data = JSON.parse(raw);
-                    state.sites = data.sites || [];
-                    state.photos = data.photos || [];
-                    if (data.projectCode) state.projectCode = data.projectCode;
-                    if (data.projectName) state.projectName = data.projectName;
-                }
+                const raw = localStorage.getItem(key);
+                if (!raw) return fallback;
+                return JSON.parse(raw);
             } catch (e) {
-                console.error('加载数据失败', e);
+                console.warn('读取失败', key, e);
+                return fallback;
             }
         }
 
+        function saveLS(key, data) {
+            try {
+                localStorage.setItem(key, JSON.stringify(data));
+            } catch (e) {
+                console.error('写入失败', key, e);
+                showToast('存储失败: ' + (e.name || '未知'), 'error');
+            }
+        }
+
+        // ============== 数据层（与网页端兼容） ==============
+        function loadData() {
+            const allProjects = loadLS(STORAGE.PROJECTS, []);
+            const allSites = loadLS(STORAGE.SITES, []);
+            const allPhotos = loadLS(STORAGE.PHOTOS, []);
+
+            // 查找或创建当前项目
+            let project = allProjects.find(p => p.id === state.projectId);
+            if (!project) {
+                project = {
+                    id: state.projectId,
+                    code: state.projectCode,
+                    name: state.projectName,
+                    description: '',
+                    createdAt: new Date().toISOString(),
+                    qrcodeUrl: '',
+                    siteCount: 0,
+                    photoCount: 0
+                };
+                allProjects.push(project);
+                saveLS(STORAGE.PROJECTS, allProjects);
+            } else {
+                // 使用数据库中的名称（网页端可能修改过）
+                if (project.name) state.projectName = project.name;
+                if (project.code) state.projectCode = project.code;
+            }
+
+            state.sites = allSites.filter(s => s.projectId === state.projectId);
+            state.photos = allPhotos.filter(p => p.projectId === state.projectId);
+        }
+
+        function syncProjects(updater) {
+            const all = loadLS(STORAGE.PROJECTS, []);
+            const updated = updater(all);
+            saveLS(STORAGE.PROJECTS, updated);
+        }
+
+        function refreshProjectCount() {
+            const all = loadLS(STORAGE.PROJECTS, []);
+            const idx = all.findIndex(p => p.id === state.projectId);
+            if (idx === -1) return;
+            const allSites = loadLS(STORAGE.SITES, []);
+            const allPhotos = loadLS(STORAGE.PHOTOS, []);
+            all[idx].siteCount = allSites.filter(s => s.projectId === state.projectId).length;
+            all[idx].photoCount = allPhotos.filter(p => p.projectId === state.projectId).length;
+            saveLS(STORAGE.PROJECTS, all);
+        }
+
+        function saveSites() {
+            const all = loadLS(STORAGE.SITES, []);
+            const others = all.filter(s => s.projectId !== state.projectId);
+            const merged = [...others, ...state.sites];
+            saveLS(STORAGE.SITES, merged);
+            refreshProjectCount();
+        }
+
+        function savePhotos() {
+            const all = loadLS(STORAGE.PHOTOS, []);
+            const others = all.filter(p => p.projectId !== state.projectId);
+            const merged = [...others, ...state.photos];
+            saveLS(STORAGE.PHOTOS, merged);
+            refreshProjectCount();
+        }
+
         // ============== EXIF 解析 ==============
-        // 简化版 JPEG EXIF 解析：提取 DateTimeOriginal 和 GPSInfo
         function parseEXIF(arrayBuffer) {
             const result = { takenAt: null, latitude: null, longitude: null };
             try {
                 const dataView = new DataView(arrayBuffer);
-                const byteLength = dataView.byteLength;
-
-                // JPEG 头校验 0xFFD8
-                if (byteLength < 4 || dataView.getUint16(0) !== 0xFFD8) {
-                    return result;
-                }
+                if (dataView.byteLength < 4 || dataView.getUint16(0) !== 0xFFD8) return result;
 
                 let offset = 2;
-                while (offset < byteLength) {
-                    if (offset + 2 > byteLength) break;
+                while (offset < dataView.byteLength) {
+                    if (offset + 2 > dataView.byteLength) break;
                     const marker = dataView.getUint16(offset);
                     offset += 2;
 
-                    // APP1 标记 (0xFFE1) - 包含 EXIF
-                    if (marker === 0xFFE1 && offset + 2 <= byteLength) {
-                        const size = dataView.getUint16(offset);
-                        if (offset + size > byteLength) break;
+                    if (marker === 0xFFE1 && offset + 2 <= dataView.byteLength) {
+                        if (dataView.byteLength - offset < 8) break;
+                        const signature = dataView.getUint32(offset + 2);
+                        if (signature !== 0x45786966) break; // 'Exif'
+                        if (dataView.getUint16(offset + 6) !== 0x0000) break;
 
-                        // 'Exif\0\0' 签名 (4 bytes: 0x45786966, 2 bytes: 0x0000)
-                        if (offset + 8 <= byteLength &&
-                            dataView.getUint32(offset + 2) === 0x45786966 &&
-                            dataView.getUint16(offset + 6) === 0x0000) {
+                        const tiffOffset = offset + 8;
+                        const byteOrder = dataView.getUint16(tiffOffset);
+                        const littleEndian = byteOrder === 0x4949;
+                        if (!littleEndian && byteOrder !== 0x4D4D) break;
 
-                            // TIFF Header 起始偏移
-                            const tiffOffset = offset + 8;
-                            const byteOrder = dataView.getUint16(tiffOffset);
-                            const littleEndian = byteOrder === 0x4949;
-                            if (!littleEndian && byteOrder !== 0x4D4D) break;
+                        const ifd0Addr = tiffOffset + dataView.getUint32(tiffOffset + 4, littleEndian);
+                        if (ifd0Addr + 2 > dataView.byteLength) break;
+                        const numEntries = dataView.getUint16(ifd0Addr, littleEndian);
 
-                            // IFD0 偏移
-                            const ifd0Offset = dataView.getUint32(tiffOffset + 4, littleEndian);
-                            const ifd0Addr = tiffOffset + ifd0Offset;
-                            const numEntries = dataView.getUint16(ifd0Addr, littleEndian);
+                        for (let i = 0; i < numEntries; i++) {
+                            const entryAddr = ifd0Addr + 2 + i * 12;
+                            if (entryAddr + 12 > dataView.byteLength) break;
+                            const tag = dataView.getUint16(entryAddr, littleEndian);
 
-                            // 解析 IFD0 寻找 DateTime (Tag 0x0132 = 306)
-                            for (let i = 0; i < numEntries; i++) {
-                                const entryAddr = ifd0Addr + 2 + i * 12;
-                                if (entryAddr + 12 > byteLength) break;
-                                const tag = dataView.getUint16(entryAddr, littleEndian);
-                                const type = dataView.getUint16(entryAddr + 2, littleEndian);
-                                const count = dataView.getUint32(entryAddr + 4, littleEndian);
-                                let valueOffset = entryAddr + 8;
+                            if (tag === 306) { // DateTime
+                                const val = readExifString(dataView, tiffOffset + dataView.getUint32(entryAddr + 8, littleEndian));
+                                const m = val.match(/(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+                                if (m) result.takenAt = `${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}`;
+                            }
 
-                                // DateTime Tag = 306 (0x0132)
-                                if (tag === 306 && type === 2) {
-                                    const val = readExifString(dataView, tiffOffset + dataView.getUint32(valueOffset, littleEndian), count);
-                                    // 格式: "YYYY:MM:DD HH:MM:SS" -> ISO
-                                    const m = val.match(/(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
-                                    if (m) {
-                                        result.takenAt = `${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}`;
-                                    }
-                                }
-
-                                // GPSInfo Tag = 34853 (0x8825) - IFD 偏移
-                                if (tag === 34853) {
-                                    const gpsIfdAddr = tiffOffset + dataView.getUint32(valueOffset, littleEndian);
-                                    const gps = parseGPSIFD(dataView, gpsIfdAddr, littleEndian, tiffOffset, byteLength);
-                                    if (gps) {
-                                        result.latitude = gps.latitude;
-                                        result.longitude = gps.longitude;
-                                    }
+                            if (tag === 34853) { // GPSInfo
+                                const gpsIfdAddr = tiffOffset + dataView.getUint32(entryAddr + 8, littleEndian);
+                                const gps = parseGPSIFD(dataView, gpsIfdAddr, littleEndian, tiffOffset);
+                                if (gps) {
+                                    result.latitude = gps.latitude;
+                                    result.longitude = gps.longitude;
                                 }
                             }
                         }
                         break;
                     } else if ((marker & 0xFF00) !== 0xFF00) {
-                        // 不是有效 marker
                         break;
                     } else {
-                        // 跳过其他 segment
-                        if (offset + 2 <= byteLength) {
+                        if (offset + 2 <= dataView.byteLength) {
                             offset += dataView.getUint16(offset);
                         } else break;
                     }
                 }
             } catch (e) {
-                console.warn('EXIF 解析失败:', e);
+                console.warn('EXIF 解析失败', e);
             }
             return result;
         }
 
-        function readExifString(dataView, offset, length) {
+        function readExifString(dataView, offset) {
             let str = '';
-            for (let i = 0; i < length - 1; i++) {
-                if (offset + i < dataView.byteLength) {
-                    str += String.fromCharCode(dataView.getUint8(offset + i));
-                }
+            for (let i = 0; i < 100; i++) {
+                if (offset + i >= dataView.byteLength) break;
+                const c = dataView.getUint8(offset + i);
+                if (c === 0) break;
+                str += String.fromCharCode(c);
             }
             return str;
         }
 
-        function parseGPSIFD(dataView, ifdAddr, littleEndian, tiffOffset, byteLength) {
-            try {
-                if (ifdAddr + 2 > byteLength) return null;
-                const numEntries = dataView.getUint16(ifdAddr, littleEndian);
-                let latRef = 'N', lonRef = 'E';
-                let latRational = null, lonRational = null;
+        function parseGPSIFD(dataView, ifdAddr, littleEndian, tiffOffset) {
+            if (ifdAddr + 2 > dataView.byteLength) return null;
+            const numEntries = dataView.getUint16(ifdAddr, littleEndian);
+            let latRef = 'N', lonRef = 'E';
+            let latRational = null, lonRational = null;
 
-                for (let i = 0; i < numEntries; i++) {
-                    const entryAddr = ifdAddr + 2 + i * 12;
-                    if (entryAddr + 12 > byteLength) break;
-                    const tag = dataView.getUint16(entryAddr, littleEndian);
-                    const type = dataView.getUint16(entryAddr + 2, littleEndian);
-                    const count = dataView.getUint32(entryAddr + 4, littleEndian);
-                    let valueOffset = entryAddr + 8;
+            for (let i = 0; i < numEntries; i++) {
+                const entryAddr = ifdAddr + 2 + i * 12;
+                if (entryAddr + 12 > dataView.byteLength) break;
+                const tag = dataView.getUint16(entryAddr, littleEndian);
+                const count = dataView.getUint32(entryAddr + 4, littleEndian);
+                const valueOffset = entryAddr + 8;
 
-                    // GPSLatitudeRef (Tag 1) - ASCII "N" 或 "S"
-                    if (tag === 1 && type === 2) {
-                        const addr = tiffOffset + dataView.getUint32(valueOffset, littleEndian);
-                        latRef = String.fromCharCode(dataView.getUint8(addr));
-                    }
-
-                    // GPSLatitude (Tag 2) - 3 RATIONAL (度分秒)
-                    if (tag === 2 && type === 5 && count === 3) {
-                        const addr = tiffOffset + dataView.getUint32(valueOffset, littleEndian);
-                        latRational = readRational3(dataView, addr, littleEndian);
-                    }
-
-                    // GPSLongitudeRef (Tag 3)
-                    if (tag === 3 && type === 2) {
-                        const addr = tiffOffset + dataView.getUint32(valueOffset, littleEndian);
-                        lonRef = String.fromCharCode(dataView.getUint8(addr));
-                    }
-
-                    // GPSLongitude (Tag 4)
-                    if (tag === 4 && type === 5 && count === 3) {
-                        const addr = tiffOffset + dataView.getUint32(valueOffset, littleEndian);
-                        lonRational = readRational3(dataView, addr, littleEndian);
-                    }
+                if (tag === 1) {
+                    const addr = tiffOffset + dataView.getUint32(valueOffset, littleEndian);
+                    latRef = String.fromCharCode(dataView.getUint8(addr));
                 }
-
-                if (latRational && lonRational) {
-                    let lat = latRational[0] + latRational[1] / 60 + latRational[2] / 3600;
-                    let lon = lonRational[0] + lonRational[1] / 60 + lonRational[2] / 3600;
-                    if (latRef === 'S') lat = -lat;
-                    if (lonRef === 'W') lon = -lon;
-                    return { latitude: lat, longitude: lon };
+                if (tag === 2 && count === 3) {
+                    const addr = tiffOffset + dataView.getUint32(valueOffset, littleEndian);
+                    latRational = readRational3(dataView, addr, littleEndian);
                 }
-            } catch (e) {
-                console.warn('GPS 解析失败:', e);
+                if (tag === 3) {
+                    const addr = tiffOffset + dataView.getUint32(valueOffset, littleEndian);
+                    lonRef = String.fromCharCode(dataView.getUint8(addr));
+                }
+                if (tag === 4 && count === 3) {
+                    const addr = tiffOffset + dataView.getUint32(valueOffset, littleEndian);
+                    lonRational = readRational3(dataView, addr, littleEndian);
+                }
+            }
+
+            if (latRational && lonRational) {
+                let lat = latRational[0] + latRational[1] / 60 + latRational[2] / 3600;
+                let lon = lonRational[0] + lonRational[1] / 60 + lonRational[2] / 3600;
+                if (latRef === 'S') lat = -lat;
+                if (lonRef === 'W') lon = -lon;
+                return { latitude: lat, longitude: lon };
             }
             return null;
         }
 
         function readRational3(dataView, offset, littleEndian) {
-            const result = [];
+            const out = [];
             for (let i = 0; i < 3; i++) {
                 const num = dataView.getUint32(offset + i * 8, littleEndian);
                 const den = dataView.getUint32(offset + i * 8 + 4, littleEndian);
-                result.push(den > 0 ? num / den : 0);
+                out.push(den > 0 ? num / den : 0);
             }
-            return result;
+            return out;
         }
 
-        // ============== URL 参数解析 ==============
-        function initFromUrl() {
+        // ============== URL 初始化 ==============
+        function init() {
             const params = new URLSearchParams(window.location.search);
             state.projectId = params.get('projectId');
 
             if (!state.projectId) {
-                renderProjectError('缺少项目ID', '请从网页端扫码进入此页面。二维码中应包含 projectId 参数。');
+                renderError('无效链接', '缺少项目ID参数。请从网页端扫码进入此页面。');
                 return;
             }
 
-            // 从已有数据或新初始化项目
-            loadProjectData();
+            state.projectName = params.get('name') || '勘察项目';
+            state.projectCode = params.get('code') || 'PROJ';
 
-            if (!state.projectCode) {
-                state.projectCode = params.get('code') || `PROJ-${state.projectId.slice(-6)}`;
-                state.projectName = params.get('name') || '勘察项目';
-            }
-
+            loadData();
             renderApp();
         }
 
-        function renderProjectError(title, msg) {
-            const app = document.getElementById('app');
-            app.innerHTML = `
-                <div class="header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                    <h1>📸 勘察照片采集</h1>
-                    <p>移动端数据采集工具</p>
+        // ============== 错误页 ==============
+        function renderError(title, msg) {
+            document.getElementById('app').innerHTML = `
+                <div class="project-card">
+                    <div class="name">📸 勘察照片采集</div>
+                    <div class="code">移动端数据采集工具</div>
                 </div>
-                <div class="project-error">
+                <div class="error-card">
                     <div class="icon">⚠️</div>
-                    <h2>${title}</h2>
-                    <p>${msg}</p>
-                    <div class="project-url">当前URL:<br>${window.location.href}</div>
-                    <button class="btn btn-primary btn-block" onclick="location.href = location.href.split('?')[0]">刷新</button>
+                    <h2>${escapeHtml(title)}</h2>
+                    <p>${escapeHtml(msg)}</p>
+                    <button class="btn-primary btn-block" onclick="location.reload()">刷新重试</button>
                 </div>
             `;
         }
 
         // ============== 主渲染 ==============
         function renderApp() {
-            const app = document.getElementById('app');
-            app.innerHTML = `
-                <div class="header">
-                    <h1>${state.projectName}</h1>
-                    <p>${state.projectCode} · 项目编号: ${state.projectId.slice(0, 12)}...</p>
+            const siteCount = state.sites.length;
+            const photoCount = state.photos.length;
+
+            document.getElementById('app').innerHTML = `
+                <div class="project-card">
+                    <div class="name">${escapeHtml(state.projectName)}</div>
+                    <div class="code">🏷️ ${escapeHtml(state.projectCode)} · ID: ${state.projectId.slice(0, 12)}...</div>
                     <div class="stats">
-                        <div class="stat"><strong>${state.sites.length}</strong>站点</div>
-                        <div class="stat"><strong>${state.photos.length}</strong>照片</div>
+                        <div class="stat"><strong>${siteCount}</strong>站点</div>
+                        <div class="stat"><strong>${photoCount}</strong>照片</div>
                     </div>
                 </div>
 
-                <div class="tab-bar">
-                    <button class="tab-btn ${state.currentTab === 'sites' ? 'active' : ''}" onclick="switchTab('sites')">📍 站点管理</button>
-                    <button class="tab-btn ${state.currentTab === 'photos' ? 'active' : ''}" onclick="switchTab('photos')">📷 照片库</button>
+                <!-- 站点管理 -->
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">📍 站点 <small>${siteCount}</small></div>
+                        <button class="btn-primary" onclick="openSiteModal()">+ 添加站点</button>
+                    </div>
+                    ${siteCount === 0 ? renderEmpty('📍', '暂无站点', '点击"添加站点"按钮创建') : renderSiteList()}
                 </div>
 
-                <div class="content" id="tab-content"></div>
+                <!-- 照片上传与管理 -->
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">📷 照片 <small>${photoCount}</small></div>
+                        <label class="btn-primary" style="cursor:pointer">
+                            📸 上传照片
+                            <input type="file" class="hidden-file" accept="image/*" capture="environment" multiple onchange="handleFiles(event)" />
+                        </label>
+                    </div>
+                    ${renderPhotoList()}
+                </div>
+
+                <!-- 数据导出/导入 -->
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">🔄 数据同步</div>
+                    </div>
+                    <div class="sync-card">
+                        <h3>与网页端同步数据</h3>
+                        <div class="sync-buttons">
+                            <button class="btn-primary" onclick="exportJSON()">📤 导出 JSON</button>
+                            <label class="btn-secondary" style="cursor:pointer">
+                                📥 导入 JSON
+                                <input type="file" class="hidden-file" accept="application/json" onchange="importJSON(event)" />
+                            </label>
+                            <button class="btn-danger" onclick="clearCurrentProject()">🗑️ 清空本项目</button>
+                        </div>
+                    </div>
+                </div>
             `;
-            renderTabContent();
         }
 
-        function switchTab(tab) {
-            state.currentTab = tab;
-            document.querySelectorAll('.tab-btn').forEach((b, i) => {
-                b.classList.toggle('active', (i === 0 && tab === 'sites') || (i === 1 && tab === 'photos'));
-            });
-            renderTabContent();
+        function renderEmpty(icon, title, desc) {
+            return `
+                <div class="empty">
+                    <div class="empty-icon">${icon}</div>
+                    <h3>${escapeHtml(title)}</h3>
+                    <p>${escapeHtml(desc)}</p>
+                </div>
+            `;
         }
 
-        function renderTabContent() {
-            const content = document.getElementById('tab-content');
-            if (state.currentTab === 'sites') {
-                content.innerHTML = renderSitesTab();
-            } else {
-                content.innerHTML = renderPhotosTab();
-            }
-        }
-
-        // ============== 站点 Tab ==============
-        function renderSitesTab() {
-            if (state.sites.length === 0) {
-                return `
-                    <div class="empty">
-                        <div class="empty-icon">📍</div>
-                        <h3>还没有站点</h3>
-                        <p>点击右下角按钮添加第一个站点</p>
-                    </div>
-                `;
-            }
-
-            const sortedSites = [...state.sites].sort((a, b) => {
-                const aCt = a.createdAt || '';
-                const bCt = b.createdAt || '';
-                return bCt.localeCompare(aCt);
+        function renderSiteList() {
+            const sorted = [...state.sites].sort((a, b) => {
+                const ca = (a.code || '').toLowerCase();
+                const cb = (b.code || '').toLowerCase();
+                return ca.localeCompare(cb);
             });
 
             return `
-                <div class="section-title">
-                    <span>站点列表</span>
-                    <small>${state.sites.length} 个站点</small>
-                </div>
                 <div class="site-list">
-                    ${sortedSites.map(site => {
-                        const photoCount = state.photos.filter(p => p.siteId === site.id).length;
+                    ${sorted.map(site => {
+                        const cnt = state.photos.filter(p => p.siteId === site.id).length;
                         return `
-                            <div class="site-item">
-                                <div class="site-icon">📍</div>
-                                <div class="site-info">
+                            <div class="site-card">
+                                <div class="top">
                                     <div class="name">${escapeHtml(site.name)}</div>
-                                    <div class="code">${escapeHtml(site.code || '')}</div>
-                                    ${site.address ? `<div class="address">${escapeHtml(site.address)}</div>` : ''}
+                                    <div class="photo-count">${cnt} 张</div>
                                 </div>
-                                <div class="site-photo-count">${photoCount} 张</div>
-                                <div class="site-actions">
-                                    <button onclick="openSiteModal('${site.id}')">编辑</button>
-                                    <button class="delete" onclick="deleteSite('${site.id}')">删除</button>
+                                <div class="meta">
+                                    <div><span>编号</span>${escapeHtml(site.code || '-')}</div>
+                                    ${site.address ? `<div><span>地址</span>${escapeHtml(site.address)}</div>` : ''}
+                                    ${site.roomType ? `<div><span>机房</span>${escapeHtml(site.roomType)}</div>` : ''}
+                                    ${site.remark ? `<div><span>备注</span>${escapeHtml(site.remark)}</div>` : ''}
+                                </div>
+                                <div class="actions">
+                                    <button onclick="openSiteModal('${site.id}')">✏️ 编辑</button>
+                                    <button onclick="uploadToSite('${site.id}')">📸 拍照</button>
+                                    <button class="del" onclick="deleteSite('${site.id}')">🗑️ 删除</button>
                                 </div>
                             </div>
                         `;
                     }).join('')}
                 </div>
-                <button class="fab" onclick="openSiteModal()">+</button>
             `;
         }
 
+        function renderPhotoList() {
+            if (state.photos.length === 0) {
+                return renderEmpty('📷', '暂无照片', '选择站点后点击"上传照片"');
+            }
+
+            // 按站点分组
+            const bySite = {};
+            for (const p of state.photos) {
+                if (!bySite[p.siteId]) bySite[p.siteId] = [];
+                bySite[p.siteId].push(p);
+            }
+            // 按拍摄时间倒序
+            Object.keys(bySite).forEach(k => {
+                bySite[k].sort((a, b) => (b.takenAt || b.uploadedAt || '').localeCompare(a.takenAt || a.uploadedAt || ''));
+            });
+
+            const siteMap = {};
+            for (const s of state.sites) siteMap[s.id] = s;
+
+            const siteIds = [...state.sites.map(s => s.id), ...Object.keys(bySite).filter(k => !siteMap[k])];
+            const visited = new Set();
+
+            let html = '';
+            for (const sid of siteIds) {
+                if (visited.has(sid)) continue;
+                visited.add(sid);
+                if (!bySite[sid] || bySite[sid].length === 0) continue;
+                const site = siteMap[sid];
+                const label = site ? `${site.code || ''} ${site.name}` : '未关联站点';
+                html += `
+                    <div class="photo-group">
+                        <div class="photo-group-title">${escapeHtml(label)} <small style="color:#9ca3af;font-weight:400">(${bySite[sid].length})</small></div>
+                        <div class="photo-grid">
+                            ${bySite[sid].map(p => `
+                                <div class="photo-item" onclick="openPhotoDetail('${p.id}')">
+                                    <img src="${p.thumbnailUrl || p.fileUrl}" alt="" loading="lazy" />
+                                    ${p.deviceType ? `<div class="badge">${escapeHtml(p.deviceType)}</div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            return html;
+        }
+
+        // ============== 站点 Modal ==============
         function openSiteModal(siteId) {
             state.editingSiteId = siteId || null;
-            document.getElementById('site-modal-title').textContent = siteId ? '编辑站点' : '新建站点';
-
+            const title = document.getElementById('site-modal-title');
             if (siteId) {
                 const site = state.sites.find(s => s.id === siteId);
-                if (site) {
-                    document.getElementById('site-name-input').value = site.name || '';
-                    document.getElementById('site-code-input').value = site.code || '';
-                    document.getElementById('site-address-input').value = site.address || '';
-                    document.getElementById('site-room-input').value = site.roomType || '';
-                }
+                title.textContent = '编辑站点';
+                document.getElementById('site-name').value = site?.name || '';
+                document.getElementById('site-code').value = site?.code || '';
+                document.getElementById('site-address').value = site?.address || '';
+                document.getElementById('site-room').value = site?.roomType || '';
+                document.getElementById('site-remark').value = site?.remark || '';
             } else {
-                document.getElementById('site-name-input').value = '';
-                document.getElementById('site-code-input').value = `SITE${String(state.sites.length + 1).padStart(3, '0')}-${Date.now().toString().slice(-4)}`;
-                document.getElementById('site-address-input').value = '';
-                document.getElementById('site-room-input').value = '';
+                title.textContent = '添加站点';
+                document.getElementById('site-name').value = '';
+                document.getElementById('site-code').value = `SITE${String(state.sites.length + 1).padStart(3, '0')}-${String(Date.now()).slice(-4)}`;
+                document.getElementById('site-address').value = '';
+                document.getElementById('site-room').value = '';
+                document.getElementById('site-remark').value = '';
             }
             document.getElementById('site-modal').classList.add('show');
-            setTimeout(() => document.getElementById('site-name-input').focus(), 300);
+            setTimeout(() => document.getElementById('site-name').focus(), 300);
         }
 
         function closeSiteModal() {
@@ -1083,39 +1066,26 @@
         }
 
         function saveSite() {
-            const name = document.getElementById('site-name-input').value.trim();
-            const code = document.getElementById('site-code-input').value.trim();
-            const address = document.getElementById('site-address-input').value.trim();
-            const roomType = document.getElementById('site-room-input').value.trim();
-
-            if (!name) {
-                showToast('请输入站点名称', 'error');
-                return;
-            }
+            const name = document.getElementById('site-name').value.trim();
+            if (!name) { showToast('请输入站点名称', 'error'); return; }
+            const code = document.getElementById('site-code').value.trim() || name;
+            const address = document.getElementById('site-address').value.trim();
+            const roomType = document.getElementById('site-room').value;
+            const remark = document.getElementById('site-remark').value.trim();
 
             if (state.editingSiteId) {
-                const site = state.sites.find(s => s.id === state.editingSiteId);
-                if (site) {
-                    site.name = name;
-                    site.code = code;
-                    site.address = address;
-                    site.roomType = roomType;
-                    showToast('站点已更新', 'success');
-                }
+                const s = state.sites.find(x => x.id === state.editingSiteId);
+                if (s) { s.name = name; s.code = code; s.address = address; s.roomType = roomType; s.remark = remark; }
+                showToast('站点已更新', 'success');
             } else {
                 state.sites.push({
                     id: uid('site'),
                     projectId: state.projectId,
-                    name,
-                    code,
-                    address,
-                    roomType,
-                    createdAt: new Date().toISOString()
+                    name, code, address, roomType, remark
                 });
                 showToast('站点已创建', 'success');
             }
-
-            saveProjectData();
+            saveSites();
             closeSiteModal();
             renderApp();
         }
@@ -1125,328 +1095,290 @@
             if (!site) return;
             const photoCount = state.photos.filter(p => p.siteId === siteId).length;
             const msg = photoCount > 0
-                ? `确定删除「${site.name}」吗？\n该站点下的 ${photoCount} 张照片也将被删除。`
-                : `确定删除「${site.name}」吗？`;
-
-            if (confirm(msg)) {
-                state.sites = state.sites.filter(s => s.id !== siteId);
-                state.photos = state.photos.filter(p => p.siteId !== siteId);
-                saveProjectData();
-                renderApp();
-                showToast('站点已删除', 'success');
-            }
+                ? `确定删除「${site.name}」？将同时删除 ${photoCount} 张照片。`
+                : `确定删除「${site.name}」？`;
+            if (!confirm(msg)) return;
+            state.sites = state.sites.filter(s => s.id !== siteId);
+            state.photos = state.photos.filter(p => p.siteId !== siteId);
+            saveSites();
+            savePhotos();
+            renderApp();
+            showToast('站点已删除', 'success');
         }
 
-        // ============== 照片 Tab ==============
-        function renderPhotosTab() {
-            const sortedPhotos = [...state.photos].sort((a, b) => (b.takenAt || b.uploadedAt).localeCompare(a.takenAt || a.uploadedAt));
-
-            if (sortedPhotos.length === 0) {
-                return `
-                    <div class="empty">
-                        <div class="empty-icon">📷</div>
-                        <h3>还没有照片</h3>
-                        <p>点击右下角按钮拍摄或上传照片</p>
-                    </div>
-                    <div class="export-section">
-                        <h3>📤 数据同步</h3>
-                        <p>导入/导出项目数据，与网页端同步</p>
-                        <button class="small-btn primary" onclick="exportJSON()">导出 JSON</button>
-                        <label class="small-btn" style="cursor:pointer">
-                            导入 JSON
-                            <input type="file" class="file-input" accept="application/json" onchange="importJSON(event)" />
-                        </label>
-                        <button class="small-btn danger" onclick="clearAllData()">清空数据</button>
-                    </div>
-                `;
-            }
-
-            return `
-                <div class="section-title">
-                    <span>照片列表</span>
-                    <small>${sortedPhotos.length} 张照片</small>
-                </div>
-                ${sortedPhotos.map(photo => {
-                    const site = state.sites.find(s => s.id === photo.siteId);
-                    return `
-                        <div class="photo-detail">
-                            <img src="${photo.fileUrl}" alt="${escapeHtml(photo.fileName)}" />
-                            <div class="info">
-                                <div class="info-row"><span class="label">文件</span><span class="value">${escapeHtml(photo.fileName)}</span></div>
-                                <div class="info-row"><span class="label">站点</span><span class="value">${site ? escapeHtml(site.name) : '未关联'}</span></div>
-                                ${photo.deviceType ? `<div class="info-row"><span class="label">设备</span><span class="value">${escapeHtml(photo.deviceType)}</span></div>` : ''}
-                                <div class="info-row"><span class="label">时间</span><span class="value">${formatDate(photo.takenAt || photo.uploadedAt)}</span></div>
-                                ${photo.latitude ? `<div class="info-row"><span class="label">GPS</span><span class="value">${photo.latitude.toFixed(6)}, ${photo.longitude.toFixed(6)}</span></div>` : ''}
-                                ${photo.remark ? `<div class="info-row"><span class="label">备注</span><span class="value">${escapeHtml(photo.remark)}</span></div>` : ''}
-                                <div style="display:flex; gap:8px; margin-top:12px">
-                                    <button class="small-btn" onclick="editPhoto('${photo.id}')">编辑</button>
-                                    <button class="small-btn danger" onclick="deletePhoto('${photo.id}')">删除</button>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('')}
-                <div class="export-section">
-                    <h3>📤 数据同步</h3>
-                    <p>导入/导出项目数据，与网页端同步</p>
-                    <button class="small-btn primary" onclick="exportJSON()">导出 JSON</button>
-                    <label class="small-btn" style="cursor:pointer">
-                        导入 JSON
-                        <input type="file" class="file-input" accept="application/json" onchange="importJSON(event)" />
-                    </label>
-                    <button class="small-btn danger" onclick="clearAllData()">清空数据</button>
-                </div>
-                <button class="fab" onclick="triggerPhotoSelect()">+</button>
-                <input type="file" id="photo-file-input" accept="image/*" multiple style="display:none" onchange="handlePhotoFiles(event)" />
-            `;
+        // ============== 照片上传 ==============
+        function uploadToSite(siteId) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.multiple = true;
+            input.capture = 'environment';
+            input.onchange = (e) => handleFiles(e, siteId);
+            input.click();
         }
 
-        // ============== 照片处理 ==============
-        function triggerPhotoSelect() {
-            if (state.sites.length === 0) {
-                if (confirm('当前没有站点，是否先创建一个站点？')) {
-                    switchTab('sites');
-                    openSiteModal();
-                    return;
-                }
-                return;
-            }
-            document.getElementById('photo-file-input').click();
-        }
-
-        async function handlePhotoFiles(event) {
+        async function handleFiles(event, presetSiteId) {
             const files = event.target.files;
             if (!files || files.length === 0) return;
+            if (state.sites.length === 0) {
+                showToast('请先创建站点', 'error');
+                return;
+            }
 
             state.pendingPhotos = [];
+            const defaultSiteId = presetSiteId || state.sites[0].id;
 
             for (const file of Array.from(files)) {
-                // 读取文件为 DataURL
-                const dataUrl = await new Promise((resolve) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => resolve(e.target.result);
-                    reader.readAsDataURL(file);
+                const dataUrl = await new Promise(resolve => {
+                    const r = new FileReader();
+                    r.onload = e => resolve(e.target.result);
+                    r.readAsDataURL(file);
                 });
 
-                // 读取 EXIF 信息
                 let exif = { takenAt: null, latitude: null, longitude: null };
                 try {
-                    const arrayBuffer = await new Promise((resolve) => {
-                        const reader = new FileReader();
-                        reader.onload = (e) => resolve(e.target.result);
-                        reader.readAsArrayBuffer(file);
+                    const ab = await new Promise(resolve => {
+                        const r = new FileReader();
+                        r.onload = e => resolve(e.target.result);
+                        r.readAsArrayBuffer(file);
                     });
-                    exif = parseEXIF(arrayBuffer);
+                    exif = parseEXIF(ab);
                 } catch (e) {
-                    console.warn('读取EXIF失败', e);
+                    console.warn('EXIF 读取失败', e);
                 }
 
-                const takenAt = exif.takenAt || new Date().toISOString();
+                const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
                 const baseName = file.name.replace(/\.[^.]+$/, '');
+                const seq = state.pendingPhotos.length + 1;
+                const autoFileName = `${state.sites.find(s => s.id === defaultSiteId)?.code || 'SITE'}_${seq}`;
 
                 state.pendingPhotos.push({
-                    file,
                     dataUrl,
-                    fileName: baseName,
+                    fileUrl: dataUrl,
+                    thumbnailUrl: dataUrl,
+                    originalName: baseName,
+                    fileName: autoFileName,
                     deviceType: '',
-                    takenAt,
+                    siteId: defaultSiteId,
+                    takenAt: exif.takenAt || new Date().toISOString(),
                     latitude: exif.latitude,
                     longitude: exif.longitude,
                     remark: '',
-                    siteId: state.sites.length > 0 ? state.sites[0].id : null
+                    isManualNamed: false
                 });
             }
 
-            event.target.value = ''; // reset
-
-            // 处理第一张照片
-            if (state.pendingPhotos.length > 0) {
-                state.currentPhotoIndex = 0;
-                openPhotoModal();
-            }
+            event.target.value = '';
+            state.pendingPhotoIndex = 0;
+            state.editingPhotoId = null;
+            openPhotoModal();
         }
 
-        function openPhotoModal(photoId) {
-            // 更新站点下拉
-            const select = document.getElementById('photo-site-select');
-            select.innerHTML = '<option value="">请选择站点</option>' +
-                state.sites.map(s => `<option value="${s.id}">${escapeHtml(s.code)} - ${escapeHtml(s.name)}</option>`).join('');
-
-            // 如果是编辑已有照片
-            let photo;
-            if (photoId) {
-                photo = state.photos.find(p => p.id === photoId);
-                if (photo) {
-                    state.currentPhotoIndex = -1;
-                    state._editingPhotoId = photoId;
-                }
-            } else {
-                state._editingPhotoId = null;
-                photo = state.pendingPhotos[state.currentPhotoIndex];
-            }
+        // ============== 照片 Modal ==============
+        function openPhotoModal() {
+            const isEdit = !!state.editingPhotoId;
+            const photo = isEdit
+                ? state.photos.find(p => p.id === state.editingPhotoId)
+                : state.pendingPhotos[state.pendingPhotoIndex];
 
             if (!photo) return;
 
-            select.value = photo.siteId || (state.sites[0] && state.sites[0].id) || '';
-            document.getElementById('photo-device-input').value = photo.deviceType || '';
-            document.getElementById('photo-name-input').value = photo.fileName || '';
-            document.getElementById('photo-time-input').value = formatDate(photo.takenAt);
-            document.getElementById('photo-gps-input').value =
+            // 填充站点下拉
+            const siteSelect = document.getElementById('photo-site');
+            siteSelect.innerHTML = state.sites.map(s =>
+                `<option value="${s.id}">${escapeHtml(s.code || '')} ${escapeHtml(s.name)}</option>`
+            ).join('');
+            siteSelect.value = photo.siteId || (state.sites[0] && state.sites[0].id) || '';
+
+            // 预览
+            const preview = document.getElementById('photo-modal-preview');
+            if (!isEdit && photo.dataUrl) {
+                preview.innerHTML = `<img src="${photo.dataUrl}" class="photo-detail-img" alt="" />`;
+            } else if (photo.fileUrl) {
+                preview.innerHTML = `<img src="${photo.fileUrl}" class="photo-detail-img" alt="" />`;
+            } else {
+                preview.innerHTML = '';
+            }
+
+            // 标题
+            const totalPending = state.pendingPhotos.length;
+            const title = document.getElementById('photo-modal-title');
+            if (isEdit) {
+                title.textContent = '编辑照片信息';
+            } else if (totalPending > 1) {
+                title.textContent = `照片信息 (${state.pendingPhotoIndex + 1}/${totalPending})`;
+            } else {
+                title.textContent = '照片信息';
+            }
+
+            // 设备类型标签
+            const tags = document.querySelectorAll('#device-tags .device-tag');
+            tags.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.v === photo.deviceType);
+                btn.onclick = () => {
+                    tags.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.getElementById('photo-device').value = btn.dataset.v;
+                };
+            });
+
+            document.getElementById('photo-device').value = photo.deviceType || '';
+            document.getElementById('photo-filename').value = photo.fileName || '';
+            document.getElementById('photo-time').value = formatDate(photo.takenAt);
+            document.getElementById('photo-gps').value =
                 (photo.latitude && photo.longitude)
                     ? `${photo.latitude.toFixed(6)}, ${photo.longitude.toFixed(6)}`
                     : '无 GPS 信息';
-            document.getElementById('photo-remark-input').value = photo.remark || '';
+            document.getElementById('photo-remark').value = photo.remark || '';
 
-            // 重置设备标签
-            document.querySelectorAll('.device-tag-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.type === photo.deviceType);
-                btn.onclick = () => {
-                    document.querySelectorAll('.device-tag-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    document.getElementById('photo-device-input').value = btn.dataset.type;
-                    photo.deviceType = btn.dataset.type;
-                };
-            });
+            // 保存按钮文字
+            const saveBtn = document.getElementById('photo-save-btn');
+            if (!isEdit && state.pendingPhotoIndex < state.pendingPhotos.length - 1) {
+                saveBtn.textContent = '保存并下一张 →';
+            } else {
+                saveBtn.textContent = isEdit ? '保存修改' : '保存照片';
+            }
 
             document.getElementById('photo-modal').classList.add('show');
         }
 
         function closePhotoModal() {
             document.getElementById('photo-modal').classList.remove('show');
-            state.currentPhotoIndex = -1;
-            state._editingPhotoId = null;
+            state.pendingPhotos = [];
+            state.pendingPhotoIndex = -1;
+            state.editingPhotoId = null;
         }
 
         function savePhoto() {
-            // 编辑已有照片
-            if (state._editingPhotoId) {
-                const photo = state.photos.find(p => p.id === state._editingPhotoId);
-                if (photo) {
-                    photo.siteId = document.getElementById('photo-site-select').value;
-                    photo.deviceType = document.getElementById('photo-device-input').value.trim();
-                    photo.fileName = document.getElementById('photo-name-input').value.trim() || photo.fileName;
-                    photo.remark = document.getElementById('photo-remark-input').value.trim();
+            const siteId = document.getElementById('photo-site').value;
+            if (!siteId) { showToast('请选择站点', 'error'); return; }
 
-                    if (!photo.siteId) {
-                        showToast('请选择站点', 'error');
-                        return;
-                    }
+            const deviceType = document.getElementById('photo-device').value.trim();
+            const fileName = document.getElementById('photo-filename').value.trim();
+            const remark = document.getElementById('photo-remark').value.trim();
 
-                    saveProjectData();
-                    showToast('照片信息已更新', 'success');
-                    closePhotoModal();
-                    renderApp();
+            if (state.editingPhotoId) {
+                const p = state.photos.find(x => x.id === state.editingPhotoId);
+                if (p) {
+                    p.siteId = siteId;
+                    p.deviceType = deviceType;
+                    p.fileName = fileName || p.fileName;
+                    p.remark = remark;
+                    p.isManualNamed = !!fileName;
                 }
+                savePhotos();
+                closePhotoModal();
+                renderApp();
+                showToast('照片已更新', 'success');
                 return;
             }
 
-            // 保存待处理的新照片
-            const photo = state.pendingPhotos[state.currentPhotoIndex];
-            if (!photo) return;
+            // 新照片
+            const p = state.pendingPhotos[state.pendingPhotoIndex];
+            if (!p) return;
 
-            photo.siteId = document.getElementById('photo-site-select').value;
-            photo.deviceType = document.getElementById('photo-device-input').value.trim();
-            photo.fileName = document.getElementById('photo-name-input').value.trim() || photo.fileName;
-            photo.remark = document.getElementById('photo-remark-input').value.trim();
+            p.siteId = siteId;
+            p.deviceType = deviceType;
+            p.fileName = fileName || p.fileName;
+            p.remark = remark;
+            p.isManualNamed = !!fileName;
 
-            if (!photo.siteId) {
-                showToast('请选择站点', 'error');
-                return;
-            }
-
-            // 将 pendingPhoto 保存为正式 photo
-            const site = state.sites.find(s => s.id === photo.siteId);
-            const seq = String(state.photos.filter(p => p.siteId === photo.siteId).length + 1).padStart(3, '0');
-            const dt = new Date(photo.takenAt);
-            const dateStr = `${dt.getFullYear()}${String(dt.getMonth() + 1).padStart(2, '0')}${String(dt.getDate()).padStart(2, '0')}`;
-            const autoName = `${site ? site.code : 'SITE'}_${dateStr}_${seq}`;
-
+            const now = new Date().toISOString();
             state.photos.push({
                 id: uid('photo'),
                 projectId: state.projectId,
-                siteId: photo.siteId,
-                originalName: photo.fileName,
-                fileName: photo.fileName || autoName,
-                fileUrl: photo.dataUrl,
-                thumbnailUrl: photo.dataUrl,
-                deviceType: photo.deviceType,
-                remark: photo.remark,
-                takenAt: photo.takenAt,
-                latitude: photo.latitude,
-                longitude: photo.longitude,
-                uploadedAt: new Date().toISOString(),
-                isManualNamed: false
+                siteId: p.siteId,
+                originalName: p.originalName,
+                fileName: p.fileName,
+                fileUrl: p.fileUrl,
+                thumbnailUrl: p.thumbnailUrl,
+                deviceType: p.deviceType,
+                remark: p.remark,
+                isManualNamed: p.isManualNamed,
+                uploadedAt: now,
+                takenAt: p.takenAt,
+                latitude: p.latitude,
+                longitude: p.longitude,
+                location: (p.latitude && p.longitude) ? `${p.latitude.toFixed(5)}, ${p.longitude.toFixed(5)}` : undefined
             });
 
-            saveProjectData();
+            savePhotos();
 
-            // 处理下一张或关闭
-            if (state.currentPhotoIndex < state.pendingPhotos.length - 1) {
-                state.currentPhotoIndex++;
-                const remaining = state.pendingPhotos.length - state.currentPhotoIndex;
-                showToast(`已保存 ${state.currentPhotoIndex}/${state.pendingPhotos.length}`, 'success');
-
-                // 打开下一张
-                const nextPhoto = state.pendingPhotos[state.currentPhotoIndex];
-                const select = document.getElementById('photo-site-select');
-                select.value = nextPhoto.siteId || (state.sites[0] && state.sites[0].id) || '';
-                document.getElementById('photo-device-input').value = nextPhoto.deviceType || '';
-                document.getElementById('photo-name-input').value = nextPhoto.fileName || '';
-                document.getElementById('photo-time-input').value = formatDate(nextPhoto.takenAt);
-                document.getElementById('photo-gps-input').value =
-                    (nextPhoto.latitude && nextPhoto.longitude)
-                        ? `${nextPhoto.latitude.toFixed(6)}, ${nextPhoto.longitude.toFixed(6)}`
-                        : '无 GPS 信息';
-                document.getElementById('photo-remark-input').value = nextPhoto.remark || '';
-                document.querySelectorAll('.device-tag-btn').forEach(btn => {
-                    btn.classList.toggle('active', btn.dataset.type === nextPhoto.deviceType);
-                    btn.onclick = () => {
-                        document.querySelectorAll('.device-tag-btn').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                        document.getElementById('photo-device-input').value = btn.dataset.type;
-                        nextPhoto.deviceType = btn.dataset.type;
-                    };
-                });
+            // 处理下一张
+            if (state.pendingPhotoIndex < state.pendingPhotos.length - 1) {
+                state.pendingPhotoIndex++;
+                showToast(`已保存 ${state.pendingPhotoIndex}/${state.pendingPhotos.length}`, 'success');
+                openPhotoModal();
             } else {
-                showToast(`全部 ${state.pendingPhotos.length} 张照片已保存`, 'success');
+                showToast(`已保存 ${state.pendingPhotos.length} 张照片`, 'success');
                 closePhotoModal();
+                renderApp();
+            }
+        }
+
+        // ============== 照片详情 ==============
+        function openPhotoDetail(photoId) {
+            const p = state.photos.find(x => x.id === photoId);
+            if (!p) return;
+            const site = state.sites.find(s => s.id === p.siteId);
+
+            document.getElementById('detail-content').innerHTML = `
+                <img src="${p.fileUrl}" class="photo-detail-img" alt="" />
+                <div class="info-row"><span class="label">📁 文件</span><span class="value">${escapeHtml(p.fileName)}</span></div>
+                <div class="info-row"><span class="label">📍 站点</span><span class="value">${site ? escapeHtml(site.code + ' ' + site.name) : '未关联'}</span></div>
+                ${p.deviceType ? `<div class="info-row"><span class="label">🖥️ 设备</span><span class="value">${escapeHtml(p.deviceType)}</span></div>` : ''}
+                <div class="info-row"><span class="label">🕐 拍摄</span><span class="value">${formatDate(p.takenAt)}</span></div>
+                <div class="info-row"><span class="label">📤 上传</span><span class="value">${formatDate(p.uploadedAt)}</span></div>
+                ${p.latitude ? `<div class="info-row"><span class="label">🌐 GPS</span><span class="value">${p.latitude.toFixed(6)}, ${p.longitude.toFixed(6)}</span></div>` : ''}
+                ${p.remark ? `<div class="info-row"><span class="label">📝 备注</span><span class="value">${escapeHtml(p.remark)}</span></div>` : ''}
+            `;
+
+            document.getElementById('detail-edit-btn').onclick = () => {
+                closeDetail();
+                state.editingPhotoId = photoId;
                 state.pendingPhotos = [];
-                renderApp();
-            }
+                openPhotoModal();
+            };
+            document.getElementById('detail-delete-btn').onclick = () => {
+                if (confirm('确定删除这张照片？')) {
+                    state.photos = state.photos.filter(x => x.id !== photoId);
+                    savePhotos();
+                    closeDetail();
+                    renderApp();
+                    showToast('照片已删除', 'success');
+                }
+            };
+
+            document.getElementById('detail-modal').classList.add('show');
         }
 
-        function editPhoto(photoId) {
-            openPhotoModal(photoId);
+        function closeDetail() {
+            document.getElementById('detail-modal').classList.remove('show');
         }
 
-        function deletePhoto(photoId) {
-            if (confirm('确定删除这张照片吗？')) {
-                state.photos = state.photos.filter(p => p.id !== photoId);
-                saveProjectData();
-                renderApp();
-                showToast('照片已删除', 'success');
-            }
-        }
-
-        // ============== 导入导出 ==============
+        // ============== 导出导入 ==============
         function exportJSON() {
+            const allProjects = loadLS(STORAGE.PROJECTS, []);
+            const project = allProjects.find(p => p.id === state.projectId) || {
+                id: state.projectId,
+                code: state.projectCode,
+                name: state.projectName
+            };
+
             const data = {
                 version: '1.0',
                 exportedAt: new Date().toISOString(),
-                project: {
-                    id: state.projectId,
-                    code: state.projectCode,
-                    name: state.projectName
-                },
+                project,
                 sites: state.sites,
                 photos: state.photos
             };
+
             const json = JSON.stringify(data, null, 2);
             const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `survey-${state.projectCode}-${Date.now()}.json`;
+            a.download = `survey-${state.projectCode || 'project'}-${Date.now()}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -1457,101 +1389,97 @@
         function importJSON(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
-            reader.onload = (e) => {
+            reader.onload = e => {
                 try {
                     const data = JSON.parse(e.target.result);
-
-                    if (!confirm(`将导入 ${data.sites ? data.sites.length : 0} 个站点, ${data.photos ? data.photos.length : 0} 张照片。\n\n注意: 与现有数据重复的站点/照片将被合并。`)) {
+                    const siteCount = (data.sites || []).length;
+                    const photoCount = (data.photos || []).length;
+                    if (!confirm(`将导入 ${siteCount} 个站点、${photoCount} 张照片到当前项目。\n\n相同编号的站点会被合并，照片按名称+站点去重。`)) {
                         event.target.value = '';
                         return;
                     }
 
-                    // 合并站点: 按 code 去重
+                    // 合并站点：按 code 去重（相同 code 的保留已有）
                     const existingCodes = new Set(state.sites.map(s => s.code));
-                    const siteIdMap = {}; // 旧ID -> 现有ID or 新ID
+                    const siteIdMap = {}; // 旧 siteId -> 新/现有 siteId
 
-                    if (data.sites && data.sites.length) {
-                        for (const site of data.sites) {
-                            if (existingCodes.has(site.code)) {
-                                const existing = state.sites.find(s => s.code === site.code);
-                                siteIdMap[site.id] = existing.id;
-                            } else {
-                                const newSite = {
-                                    id: uid('site'),
-                                    projectId: state.projectId,
-                                    name: site.name,
-                                    code: site.code,
-                                    address: site.address,
-                                    roomType: site.roomType,
-                                    createdAt: site.createdAt || new Date().toISOString()
-                                };
-                                state.sites.push(newSite);
-                                siteIdMap[site.id] = newSite.id;
-                                existingCodes.add(site.code);
-                            }
-                        }
-                    }
-
-                    // 合并照片
-                    if (data.photos && data.photos.length) {
-                        for (const photo of data.photos) {
-                            const newSiteId = siteIdMap[photo.siteId] || photo.siteId;
-                            state.photos.push({
-                                id: uid('photo'),
+                    for (const site of (data.sites || [])) {
+                        if (existingCodes.has(site.code)) {
+                            const existing = state.sites.find(s => s.code === site.code);
+                            if (existing) siteIdMap[site.id] = existing.id;
+                        } else {
+                            const newSite = {
+                                id: uid('site'),
                                 projectId: state.projectId,
-                                siteId: newSiteId,
-                                originalName: photo.originalName || photo.fileName,
-                                fileName: photo.fileName,
-                                fileUrl: photo.fileUrl,
-                                thumbnailUrl: photo.thumbnailUrl || photo.fileUrl,
-                                deviceType: photo.deviceType,
-                                remark: photo.remark,
-                                takenAt: photo.takenAt,
-                                latitude: photo.latitude,
-                                longitude: photo.longitude,
-                                uploadedAt: photo.uploadedAt || new Date().toISOString(),
-                                isManualNamed: photo.isManualNamed || false
-                            });
+                                name: site.name,
+                                code: site.code,
+                                address: site.address,
+                                roomType: site.roomType,
+                                remark: site.remark,
+                                latitude: site.latitude,
+                                longitude: site.longitude
+                            };
+                            state.sites.push(newSite);
+                            siteIdMap[site.id] = newSite.id;
+                            existingCodes.add(site.code);
                         }
                     }
 
-                    saveProjectData();
+                    // 合并照片：按 siteId + fileName 去重
+                    const existingPhotoKeys = new Set(state.photos.map(p => `${p.siteId}-${p.fileName}`));
+                    let addedPhotos = 0;
+                    for (const photo of (data.photos || [])) {
+                        const mappedSiteId = siteIdMap[photo.siteId] || photo.siteId || (state.sites[0] && state.sites[0].id);
+                        if (!mappedSiteId) continue;
+                        const key = `${mappedSiteId}-${photo.fileName}`;
+                        if (existingPhotoKeys.has(key)) continue;
+                        state.photos.push({
+                            id: uid('photo'),
+                            projectId: state.projectId,
+                            siteId: mappedSiteId,
+                            originalName: photo.originalName || photo.fileName,
+                            fileName: photo.fileName,
+                            fileUrl: photo.fileUrl,
+                            thumbnailUrl: photo.thumbnailUrl || photo.fileUrl,
+                            deviceType: photo.deviceType,
+                            remark: photo.remark,
+                            isManualNamed: photo.isManualNamed || false,
+                            uploadedAt: photo.uploadedAt || new Date().toISOString(),
+                            takenAt: photo.takenAt,
+                            latitude: photo.latitude,
+                            longitude: photo.longitude,
+                            location: photo.location
+                        });
+                        existingPhotoKeys.add(key);
+                        addedPhotos++;
+                    }
+
+                    saveSites();
+                    savePhotos();
                     renderApp();
-                    showToast(`导入成功: ${data.sites ? data.sites.length : 0} 站点, ${data.photos ? data.photos.length : 0} 照片`, 'success');
+                    showToast(`导入成功 (${siteCount} 站点, ${addedPhotos} 照片)`, 'success');
                 } catch (err) {
                     console.error(err);
-                    showToast('导入失败: 文件格式错误', 'error');
+                    showToast('导入失败：文件格式错误', 'error');
                 }
                 event.target.value = '';
             };
             reader.readAsText(file);
         }
 
-        function clearAllData() {
-            if (confirm('⚠️ 确定清空所有数据吗？此操作不可撤销！\n将删除当前项目下的所有站点和照片。')) {
-                state.sites = [];
-                state.photos = [];
-                saveProjectData();
-                renderApp();
-                showToast('数据已清空', 'success');
-            }
-        }
-
-        // ============== 辅助 ==============
-        function escapeHtml(str) {
-            if (str == null) return '';
-            return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#39;');
+        function clearCurrentProject() {
+            if (!confirm('⚠️ 确定清空当前项目的所有站点和照片？此操作不可撤销！')) return;
+            state.sites = [];
+            state.photos = [];
+            saveSites();
+            savePhotos();
+            renderApp();
+            showToast('数据已清空', 'success');
         }
 
         // 初始化
-        initFromUrl();
+        init();
     </script>
 </body>
 </html>
