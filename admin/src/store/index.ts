@@ -27,16 +27,28 @@ const uid = (prefix: string) =>
   `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 
 // ---------- 二维码生成 ----------
-// 获取当前页面origin，用于构造手机端URL
+// 获取当前页面的 origin + pathname（不包含 #/hash 和 ?query），用于构造手机端URL
+// - 开发环境: http://localhost:5173/
+// - 生产环境: https://example.com/ 或 https://xxx-preview.trae.cn/
+// 使用 window.location.origin + window.location.pathname 构造，比直接用 origin 更可靠
 const getBaseUrl = (): string => {
   if (typeof window === 'undefined') return 'http://localhost:5173'
-  return window.location.origin
+  const origin = window.location.origin
+  // pathname 可能是 "/projects/xxx" 或 "/"，取到第一个 "/" 为止的根路径
+  const pathname = window.location.pathname
+  // 取根路径（路径中最后一个 "/" 之前的内容）
+  const rootPath = pathname.substring(0, pathname.lastIndexOf('/')) || '/'
+  // 返回 origin + rootPath，但去掉尾部斜杠
+  const base = (origin + rootPath).replace(/\/$/, '')
+  return base || origin
 }
 
 // 生成手机端扫码 URL
+// 使用当前页面的完整 origin 构造，确保在 preview/反向代理环境下也能访问
 export const generateMobileUrl = (project: { id: string; name: string; code: string }): string => {
   const { id: projectId, name, code } = project
-  return `${getBaseUrl()}/mobile/index.html?projectId=${projectId}&name=${encodeURIComponent(name)}&code=${encodeURIComponent(code)}`
+  const base = getBaseUrl()
+  return `${base}/mobile/index.html?projectId=${projectId}&name=${encodeURIComponent(name)}&code=${encodeURIComponent(code)}`
 }
 
 // 生成二维码 dataURL
@@ -44,8 +56,8 @@ export const generateQRCode = async (project: { id: string; name: string; code: 
   try {
     const url = generateMobileUrl(project)
     return await QRCode.toDataURL(url, { width: 400, margin: 2 })
-  } catch {
-    // 兜底：返回一个占位图
+  } catch (e) {
+    // 兜底：使用外部服务生成
     return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(generateMobileUrl(project))}`
   }
 }

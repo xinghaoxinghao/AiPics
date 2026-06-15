@@ -501,7 +501,12 @@
 </head>
 <body>
     <div id="toast" class="toast"></div>
-    <div id="app"></div>
+    <div id="app">
+        <div class="project-card">
+            <div class="name">📸 勘察照片采集</div>
+            <div class="code">正在加载...</div>
+        </div>
+    </div>
 
     <!-- 新增/编辑站点 Modal -->
     <div id="site-modal" class="modal-backdrop">
@@ -590,12 +595,47 @@
     </div>
 
     <script>
+        // ============ 全局错误处理：页面白屏时给出提示 ============
+        try {
+            window.onerror = function(msg, url, line, col, err) {
+                console.error('页面错误:', msg, err);
+                const app = document.getElementById('app');
+                if (app) {
+                    app.innerHTML = `
+                        <div class="project-card">
+                            <div class="name">⚠️ 页面加载出错</div>
+                            <div class="code">请刷新浏览器重试</div>
+                        </div>
+                        <div class="error-card" style="margin:16px;padding:16px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);">
+                            <h2 style="margin:0 0 12px;color:#1f2937;font-size:16px;">错误信息</h2>
+                            <p style="margin:0;color:#6b7280;word-break:break-all;font-size:13px;">${escapeHtml(String(msg))}</p>
+                            <button class="btn-primary btn-block" style="margin-top:16px;padding:12px 18px;border:none;border-radius:10px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;font-size:14px;" onclick="location.reload()">点击刷新重试</button>
+                        </div>
+                    `;
+                }
+            };
+        } catch(e) { /* ignore */ }
+
         // ============== 存储键（与网页端完全一致，非常重要） ==============
         const STORAGE = {
             PROJECTS: 'survey_projects',
             SITES: 'survey_sites',
             PHOTOS: 'survey_photos'
         };
+
+        // ============== 内存存储 fallback（localStorage 不可用时使用） ==============
+        let memoryStore = {};
+        function hasLocalStorage() {
+            try {
+                const k = '__test__';
+                localStorage.setItem(k, '1');
+                localStorage.removeItem(k);
+                return true;
+            } catch(e) {
+                return false;
+            }
+        }
+        const USE_LS = hasLocalStorage();
 
         // ============== 应用状态 ==============
         const state = {
@@ -610,19 +650,24 @@
             editingPhotoId: null
         };
 
-        // ============== 工具函数 ==============
+        // ============== 工具函数（最精简最可靠） ==============
         function uid(prefix) {
-            return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+            try {
+                return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+            } catch(e) {
+                return prefix + '-' + Date.now();
+            }
         }
 
         function showToast(msg, type) {
-            const toast = document.getElementById('toast');
-            toast.textContent = msg;
-            toast.className = 'toast show' + (type ? ' ' + type : '');
-            clearTimeout(showToast._t);
-            showToast._t = setTimeout(() => {
-                toast.className = 'toast';
-            }, 2000);
+            try {
+                const toast = document.getElementById('toast');
+                if (!toast) return;
+                toast.textContent = msg;
+                toast.className = 'toast show' + (type ? ' ' + type : '');
+                clearTimeout(showToast._t);
+                showToast._t = setTimeout(() => { toast.className = 'toast'; }, 2000);
+            } catch(e) { console.warn('toast error:', e); }
         }
 
         function formatDate(iso) {
@@ -649,7 +694,12 @@
 
         function loadLS(key, fallback) {
             try {
-                const raw = localStorage.getItem(key);
+                let raw;
+                if (USE_LS) {
+                    raw = localStorage.getItem(key);
+                } else {
+                    raw = memoryStore[key];
+                }
                 if (!raw) return fallback;
                 return JSON.parse(raw);
             } catch (e) {
@@ -660,10 +710,19 @@
 
         function saveLS(key, data) {
             try {
-                localStorage.setItem(key, JSON.stringify(data));
+                const str = JSON.stringify(data);
+                if (USE_LS) {
+                    localStorage.setItem(key, str);
+                } else {
+                    memoryStore[key] = str;
+                }
             } catch (e) {
                 console.error('写入失败', key, e);
-                showToast('存储失败: ' + (e.name || '未知'), 'error');
+                if (USE_LS) {
+                    // fallback 到内存
+                    try { memoryStore[key] = JSON.stringify(data); } catch(e2) {}
+                }
+                showToast('存储失败，数据将保存在当前会话中', 'error');
             }
         }
 
@@ -856,37 +915,73 @@
             return out;
         }
 
-        // ============== URL 初始化 ==============
+        // ============== URL 初始化（强健壮版本） ==============
         function init() {
-            const params = new URLSearchParams(window.location.search);
-            state.projectId = params.get('projectId');
+            try {
+                // 解析 URL 参数（兼容浏览器 URL 解码失败的情况）
+                let searchStr = window.location.search || '';
+                // 手动解析（兼容不支持 URLSearchParams 的旧浏览器）
+                const params = {};
+                if (searchStr) {
+                    try {
+                        const usp = new URLSearchParams(searchStr);
+                        usp.forEach((v, k) => { params[k] = v; });
+                    } catch(e) {
+                        // fallback：手动解析
+                        searchStr.replace(/^[?]/, '').split('&').forEach(pair => {
+                            const idx = pair.indexOf('=');
+                            if (idx > 0) {
+                                try {
+                                    const k = decodeURIComponent(pair.substring(0, idx));
+                                    const v = decodeURIComponent(pair.substring(idx + 1));
+                                    params[k] = v;
+                                } catch(e2) {}
+                            }
+                        });
+                    }
+                }
 
-            if (!state.projectId) {
-                renderError('无效链接', '缺少项目ID参数。请从网页端扫码进入此页面。');
-                return;
+                state.projectId = params.projectId || params['projectId'];
+
+                if (!state.projectId) {
+                    renderError('无效链接', '缺少项目信息。请从网页管理端扫码进入，或点击下方按钮返回。');
+                    return;
+                }
+
+                state.projectName = params.name || '勘察项目';
+                state.projectCode = params.code || 'PROJ';
+
+                // 加载数据
+                try { loadData(); } catch(e) {
+                    console.error('加载数据失败', e);
+                    // 失败时仍继续，使用空数据
+                }
+
+                renderApp();
+            } catch(e) {
+                console.error('初始化失败', e);
+                renderError('页面加载失败', '请刷新浏览器重试，或点击下方按钮返回管理端。');
             }
-
-            state.projectName = params.get('name') || '勘察项目';
-            state.projectCode = params.get('code') || 'PROJ';
-
-            loadData();
-            renderApp();
         }
 
         // ============== 错误页 ==============
         function renderError(title, msg) {
-            document.getElementById('app').innerHTML = `
+            try {
+                document.getElementById('app').innerHTML = `
                 <div class="project-card">
                     <div class="name">📸 勘察照片采集</div>
                     <div class="code">移动端数据采集工具</div>
                 </div>
-                <div class="error-card">
-                    <div class="icon">⚠️</div>
-                    <h2>${escapeHtml(title)}</h2>
-                    <p>${escapeHtml(msg)}</p>
-                    <button class="btn-primary btn-block" onclick="location.reload()">刷新重试</button>
+                <div class="section" style="padding: 0 16px; margin-top: 20px;">
+                    <div class="empty" style="padding: 32px 16px;">
+                        <div class="empty-icon" style="font-size: 48px;">⚠️</div>
+                        <h2 style="margin: 12px 0 8px; color: #1f2937; font-size: 18px;">${escapeHtml(title)}</h2>
+                        <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">${escapeHtml(msg)}</p>
+                        <button class="btn-primary btn-block" style="margin-top: 24px; padding: 12px 18px; border: none; border-radius: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-size: 15px; width: 100%; cursor: pointer;" onclick="location.href='./'">返回管理端</button>
+                    </div>
                 </div>
             `;
+            } catch(e2) { console.error(e2); }
         }
 
         // ============== 主渲染 ==============
@@ -1108,70 +1203,97 @@
 
         // ============== 照片上传 ==============
         function uploadToSite(siteId) {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.multiple = true;
-            input.capture = 'environment';
-            input.onchange = (e) => handleFiles(e, siteId);
-            input.click();
+            try {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.multiple = true;
+                try { input.capture = 'environment'; } catch(e) {}
+                input.onchange = (e) => handleFiles(e, siteId);
+                setTimeout(() => input.click(), 0);
+            } catch(e) {
+                console.error('打开相机失败:', e);
+                showToast('无法打开相机，请检查浏览器权限', 'error');
+            }
         }
 
         async function handleFiles(event, presetSiteId) {
-            const files = event.target.files;
-            if (!files || files.length === 0) return;
-            if (state.sites.length === 0) {
-                showToast('请先创建站点', 'error');
-                return;
-            }
-
-            state.pendingPhotos = [];
-            const defaultSiteId = presetSiteId || state.sites[0].id;
-
-            for (const file of Array.from(files)) {
-                const dataUrl = await new Promise(resolve => {
-                    const r = new FileReader();
-                    r.onload = e => resolve(e.target.result);
-                    r.readAsDataURL(file);
-                });
-
-                let exif = { takenAt: null, latitude: null, longitude: null };
-                try {
-                    const ab = await new Promise(resolve => {
-                        const r = new FileReader();
-                        r.onload = e => resolve(e.target.result);
-                        r.readAsArrayBuffer(file);
-                    });
-                    exif = parseEXIF(ab);
-                } catch (e) {
-                    console.warn('EXIF 读取失败', e);
+            try {
+                const files = event.target.files;
+                if (!files || files.length === 0) return;
+                if (state.sites.length === 0) {
+                    showToast('请先创建站点', 'error');
+                    return;
                 }
 
-                const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-                const baseName = file.name.replace(/\.[^.]+$/, '');
-                const seq = state.pendingPhotos.length + 1;
-                const autoFileName = `${state.sites.find(s => s.id === defaultSiteId)?.code || 'SITE'}_${seq}`;
+                state.pendingPhotos = [];
+                const defaultSiteId = presetSiteId || state.sites[0].id;
 
-                state.pendingPhotos.push({
-                    dataUrl,
-                    fileUrl: dataUrl,
-                    thumbnailUrl: dataUrl,
-                    originalName: baseName,
-                    fileName: autoFileName,
-                    deviceType: '',
-                    siteId: defaultSiteId,
-                    takenAt: exif.takenAt || new Date().toISOString(),
-                    latitude: exif.latitude,
-                    longitude: exif.longitude,
-                    remark: '',
-                    isManualNamed: false
-                });
+                for (const file of Array.from(files)) {
+                    let dataUrl = '';
+                    try {
+                        dataUrl = await new Promise((resolve, reject) => {
+                            const r = new FileReader();
+                            r.onload = e => resolve(e.target.result);
+                            r.onerror = () => reject(new Error('读取失败'));
+                            r.readAsDataURL(file);
+                        });
+                    } catch(e) {
+                        console.error('读取图片失败:', file.name, e);
+                        showToast('部分图片读取失败', 'error');
+                        continue;
+                    }
+
+                    let exif = { takenAt: null, latitude: null, longitude: null };
+                    try {
+                        const ab = await new Promise((resolve, reject) => {
+                            const r = new FileReader();
+                            r.onload = e => resolve(e.target.result);
+                            r.onerror = () => reject(new Error('EXIF读取失败'));
+                            r.readAsArrayBuffer(file);
+                        });
+                        exif = parseEXIF(ab);
+                    } catch(e) {
+                        console.warn('EXIF 读取失败', e);
+                    }
+
+                    const baseName = file.name.replace(/\.[^.]+$/, '');
+                    const seq = state.pendingPhotos.length + 1;
+                    let autoFileName;
+                    try {
+                        const site = state.sites.find(s => s.id === defaultSiteId);
+                        autoFileName = `${(site && site.code) || 'SITE'}_${seq}`;
+                    } catch(e) { autoFileName = `PHOTO_${seq}`; }
+
+                    state.pendingPhotos.push({
+                        dataUrl,
+                        fileUrl: dataUrl,
+                        thumbnailUrl: dataUrl,
+                        originalName: baseName,
+                        fileName: autoFileName,
+                        deviceType: '',
+                        siteId: defaultSiteId,
+                        takenAt: exif.takenAt || new Date().toISOString(),
+                        latitude: exif.latitude,
+                        longitude: exif.longitude,
+                        remark: '',
+                        isManualNamed: false
+                    });
+                }
+
+                if (state.pendingPhotos.length === 0) {
+                    showToast('没有可用的图片', 'error');
+                    return;
+                }
+
+                event.target.value = '';
+                state.pendingPhotoIndex = 0;
+                state.editingPhotoId = null;
+                openPhotoModal();
+            } catch(e) {
+                console.error('上传处理失败', e);
+                showToast('上传失败，请重试', 'error');
             }
-
-            event.target.value = '';
-            state.pendingPhotoIndex = 0;
-            state.editingPhotoId = null;
-            openPhotoModal();
         }
 
         // ============== 照片 Modal ==============

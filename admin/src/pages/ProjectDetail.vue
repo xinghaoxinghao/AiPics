@@ -254,31 +254,34 @@ onMounted(() => {
                 <p>二维码生成中...</p>
               </div>
             </div>
-            <p class="qrcode-tip">📱 使用手机浏览器扫码 或 点击下方链接打开</p>
+            <p class="qrcode-tip">📱 扫码 或 点击下方链接 打开手机端页面</p>
             <div class="qrcode-actions">
               <el-button size="small" :icon="Refresh" @click="handleRefreshQR" :loading="qrRefreshing">
                 刷新二维码
               </el-button>
-              <el-button size="small" :icon="Link" @click="handleCopyUrl">
-                复制URL
+              <el-button size="small" type="primary" :icon="Link" @click="handleCopyUrl">
+                复制链接
               </el-button>
             </div>
-            <el-input
-              class="qr-url-input"
-              :model-value="mobileUrl"
-              readonly
-              size="small"
-            />
+            <a
+              class="qr-url-link"
+              :href="mobileUrl"
+              target="_blank"
+              rel="noopener"
+              @click.stop
+            >
+              {{ mobileUrl }}
+            </a>
             <div class="open-mobile-btn">
-              <el-button type="primary" size="small" :icon="Link" @click="handleOpenMobile" target="_blank">
-                点击打开手机端页面
+              <el-button type="primary" :icon="Link" @click="handleOpenMobile" size="default">
+                打开手机端页面 →
               </el-button>
               <el-upload
                 :show-file-list="false"
                 :before-upload="handleImportData"
                 accept=".json"
               >
-                <el-button size="small" :icon="Upload">导入手机端数据</el-button>
+                <el-button :icon="Upload">导入手机端数据</el-button>
               </el-upload>
             </div>
           </div>
@@ -554,24 +557,26 @@ onMounted(() => {
   margin-bottom: 8px;
 }
 
-.qr-url-input {
-  margin-top: 4px;
+.qr-url-link {
+  display: block;
+  margin-top: 6px;
   width: 220px;
-}
-
-.qr-url-input :deep(.el-input__wrapper) {
   font-size: 12px;
-  cursor: pointer;
-}
-
-.qr-url-input :deep(.el-input__inner) {
   color: #409eff;
   text-decoration: underline;
-  cursor: pointer;
+  text-align: center;
+  word-break: break-all;
+  line-height: 1.4;
+  padding: 6px 10px;
+  background: #ecf5ff;
+  border-radius: 6px;
+  transition: all 0.2s;
 }
 
-.qr-url-input :deep(.el-input__inner):hover {
-  color: #337ecc;
+.qr-url-link:hover {
+  color: #fff;
+  background: #409eff;
+  text-decoration: none;
 }
 
 .open-mobile-btn {
@@ -579,7 +584,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .stats-grid {
