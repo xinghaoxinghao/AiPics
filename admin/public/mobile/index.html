@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>勘察照片采集</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #f5f6fa;
+            min-height: 100vh;
+            color: #1f2937;
+            padding-bottom: 24px;
+        }
+
+        /* ============== 顶部项目信息卡片 ============== */
+        .project-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px 16px 20px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+
+        .project-card .name {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            word-break: break-all;
+        }
+
+        .project-card .code {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 14px;
+        }
+
+        .project-card .stats {
+            display: flex;
+            gap: 12px;
+        }
+
+        .project-card .stat {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            backdrop-filter: blur(10px);
+            flex: 1;
+            text-align: center;
+        }
+
+        .project-card .stat strong {
+            font-size: 18px;
+            font-weight: 700;
+            display: block;
+        }
+
+        /* ============== 分区标题 ============== */
+        .section {
+            padding: 0 16px;
+            margin-top: 20px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .section-title small {
+            font-size: 12px;
+            color: #9ca3af;
+            font-weight: 400;
+            margin-left: 6px;
+        }
+
+        /* ============== 按钮 ============== */
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary:active { transform: scale(0.98); }
+
+        .btn-secondary {
+            background: white;
+            color: #4b5563;
+            border: 1.5px solid #e5e7eb;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn-danger {
+            background: white;
+            color: #ef4444;
+            border: 1.5px solid #fee2e2;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn-block { width: 100%; }
+
+        /* ============== 站点卡片 ============== */
+        .site-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .site-card {
+            background: white;
+            padding: 14px 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .site-card .top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .site-card .name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1f2937;
+            word-break: break-all;
+        }
+
+        .site-card .photo-count {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .site-card .meta {
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        .site-card .meta span { color: #9ca3af; margin-right: 4px; }
+
+        .site-card .actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .site-card .actions button {
+            flex: 1;
+            border: 1px solid #e5e7eb;
+            background: #fafafa;
+            color: #4b5563;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .site-card .actions button.del { color: #ef4444; border-color: #fee2e2; }
+
+        /* ============== 照片区 ============== */
+        .photo-group {
+            margin-bottom: 16px;
+        }
+
+        .photo-group-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            padding-left: 4px;
+        }
+
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+
+        .photo-item {
+            aspect-ratio: 1;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #000;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-item .badge {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            background: rgba(102, 126, 234, 0.9);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 8px;
+        }
+
+        /* ============== 空状态 ============== */
+        .empty {
+            text-align: center;
+            padding: 32px 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .empty-icon {
+            font-size: 40px;
+            margin-bottom: 8px;
+        }
+
+        .empty h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #1f2937;
+        }
+
+        .empty p {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        /* ============== 导出导入区 ============== */
+        .sync-card {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            margin-top: 8px;
+        }
+
+        .sync-card h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 12px;
+        }
+
+        .sync-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .sync-buttons button,
+        .sync-buttons label {
+            flex: 1;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        /* ============== Modal ============== */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 200;
+        }
+
+        .modal-backdrop.show { display: flex; }
+
+        .modal {
+            background: white;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 20px 20px 0 0;
+            padding: 24px 20px 32px;
+            max-height: 88vh;
+            overflow-y: auto;
+            animation: slideUp 0.25s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal h2 {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1f2937;
+            text-align: center;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+            margin-top: 14px;
+        }
+
+        .form-label:first-child { margin-top: 0; }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            background: #f9fafb;
+            outline: none;
+            font-family: inherit;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            border-color: #667eea;
+            background: white;
+        }
+
+        .form-textarea { resize: vertical; min-height: 70px; }
+
+        .form-input:read-only { color: #6b7280; background: #f3f4f6; }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-actions .btn-primary,
+        .modal-actions .btn-secondary {
+            flex: 1;
+        }
+
+        /* ============== 设备类型标签 ============== */
+        .device-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .device-tag {
+            padding: 6px 12px;
+            border: 1.5px solid #e5e7eb;
+            background: white;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #6b7280;
+            cursor: pointer;
+        }
+
+        .device-tag.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        /* ============== 照片详情 Modal ============== */
+        .photo-detail-img {
+            width: 100%;
+            max-height: 280px;
+            object-fit: contain;
+            background: #000;
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+
+        .info-row {
+            display: flex;
+            font-size: 13px;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .info-row .label {
+            color: #9ca3af;
+            width: 64px;
+            flex-shrink: 0;
+        }
+
+        .info-row .value {
+            color: #1f2937;
+            flex: 1;
+            word-break: break-all;
+        }
+
+        .detail-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        /* ============== Toast ============== */
+        .toast {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-20px);
+            background: rgba(31, 41, 55, 0.95);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 13px;
+            z-index: 500;
+            opacity: 0;
+            transition: all 0.25s;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .toast.success { background: rgba(34, 197, 94, 0.95); }
+        .toast.error { background: rgba(239, 68, 68, 0.95); }
+
+        /* ============== 错误页 ============== */
+        .error-card {
+            background: white;
+            margin: 24px 16px;
+            padding: 28px 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .error-card .icon {
+            font-size: 54px;
+            margin-bottom: 12px;
+        }
+
+        .error-card h2 {
+            font-size: 17px;
+            margin-bottom: 8px;
+            color: #1f2937;
+        }
+
+        .error-card p {
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        /* ============== 文件上传隐藏 ============== */
+        .hidden-file { display: none; }
+    </style>
+</head>
+<body>
+    <div id="toast" class="toast"></div>
+    <div id="app">
+        <div class="project-card">
+            <div class="name">📸 勘察照片采集</div>
+            <div class="code">正在加载...</div>
+        </div>
+    </div>
+
+    <!-- 新增/编辑站点 Modal -->
+    <div id="site-modal" class="modal-backdrop">
+        <div class="modal">
+            <h2 id="site-modal-title">添加站点</h2>
+            <label class="form-label">站点名称 <span style="color:#ef4444">*</span></label>
+            <input id="site-name" class="form-input" placeholder="例如：XX路5G基站" />
+
+            <label class="form-label">站点编号</label>
+            <input id="site-code" class="form-input" placeholder="自动生成，可修改" />
+
+            <label class="form-label">站点地址</label>
+            <input id="site-address" class="form-input" placeholder="选填" />
+
+            <label class="form-label">机房类型</label>
+            <select id="site-room" class="form-select">
+                <option value="">请选择（选填）</option>
+                <option value="核心机房">核心机房</option>
+                <option value="汇聚机房">汇聚机房</option>
+                <option value="接入机房">接入机房</option>
+                <option value="室外站">室外站</option>
+                <option value="其他">其他</option>
+            </select>
+
+            <label class="form-label">备注</label>
+            <textarea id="site-remark" class="form-textarea" placeholder="选填"></textarea>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeSiteModal()">取消</button>
+                <button class="btn-primary" onclick="saveSite()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 照片信息 Modal -->
+    <div id="photo-modal" class="modal-backdrop">
+        <div class="modal">
+            <h2 id="photo-modal-title">照片信息</h2>
+            <div id="photo-modal-preview"></div>
+
+            <label class="form-label">选择站点 <span style="color:#ef4444">*</span></label>
+            <select id="photo-site" class="form-select"></select>
+
+            <label class="form-label">设备类型</label>
+            <div class="device-tags" id="device-tags">
+                <button type="button" class="device-tag" data-v="机柜">机柜</button>
+                <button type="button" class="device-tag" data-v="天线">天线</button>
+                <button type="button" class="device-tag" data-v="电源">电源</button>
+                <button type="button" class="device-tag" data-v="传输">传输</button>
+                <button type="button" class="device-tag" data-v="接地">接地</button>
+                <button type="button" class="device-tag" data-v="环境">环境</button>
+                <button type="button" class="device-tag" data-v="其他">其他</button>
+            </div>
+            <input id="photo-device" class="form-input" placeholder="或自定义设备类型" />
+
+            <label class="form-label">拍摄时间</label>
+            <input id="photo-time" class="form-input" readonly />
+
+            <label class="form-label">GPS 坐标</label>
+            <input id="photo-gps" class="form-input" readonly />
+
+            <label class="form-label">文件名称</label>
+            <input id="photo-filename" class="form-input" placeholder="自动生成，可修改" />
+
+            <label class="form-label">备注</label>
+            <textarea id="photo-remark" class="form-textarea" placeholder="选填"></textarea>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closePhotoModal()">取消</button>
+                <button class="btn-primary" id="photo-save-btn" onclick="savePhoto()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 照片详情 Modal -->
+    <div id="detail-modal" class="modal-backdrop">
+        <div class="modal">
+            <h2>照片详情</h2>
+            <div id="detail-content"></div>
+            <div class="detail-actions">
+                <button class="btn-secondary" onclick="closeDetail()">关闭</button>
+                <button class="btn-secondary" id="detail-edit-btn">编辑</button>
+                <button class="btn-secondary" id="detail-delete-btn" style="color:#ef4444;border-color:#fee2e2">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============ 全局错误处理：页面白屏时给出提示 ============
+        try {
+            window.onerror = function(msg, url, line, col, err) {
+                console.error('页面错误:', msg, err);
+                const app = document.getElementById('app');
+                if (app) {
+                    app.innerHTML = `
+                        <div class="project-card">
+                            <div class="name">⚠️ 页面加载出错</div>
+                            <div class="code">请刷新浏览器重试</div>
+                        </div>
+                        <div class="error-card" style="margin:16px;padding:16px;background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06);">
+                            <h2 style="margin:0 0 12px;color:#1f2937;font-size:16px;">错误信息</h2>
+                            <p style="margin:0;color:#6b7280;word-break:break-all;font-size:13px;">${escapeHtml(String(msg))}</p>
+                            <button class="btn-primary btn-block" style="margin-top:16px;padding:12px 18px;border:none;border-radius:10px;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:white;font-size:14px;" onclick="location.reload()">点击刷新重试</button>
+                        </div>
+                    `;
+                }
+            };
+        } catch(e) { /* ignore */ }
+
+        // ============== 存储键（与网页端完全一致，非常重要） ==============
+        const STORAGE = {
+            PROJECTS: 'survey_projects',
+            SITES: 'survey_sites',
+            PHOTOS: 'survey_photos'
+        };
+
+        // ============== 内存存储 fallback（localStorage 不可用时使用） ==============
+        let memoryStore = {};
+        function hasLocalStorage() {
+            try {
+                const k = '__test__';
+                localStorage.setItem(k, '1');
+                localStorage.removeItem(k);
+                return true;
+            } catch(e) {
+                return false;
+            }
+        }
+        const USE_LS = hasLocalStorage();
+
+        // ============== 应用状态 ==============
+        const state = {
+            projectId: null,
+            projectName: '',
+            projectCode: '',
+            sites: [],
+            photos: [],
+            editingSiteId: null,
+            pendingPhotos: [],
+            pendingPhotoIndex: -1,
+            editingPhotoId: null
+        };
+
+        // ============== 工具函数（最精简最可靠） ==============
+        function uid(prefix) {
+            try {
+                return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+            } catch(e) {
+                return prefix + '-' + Date.now();
+            }
+        }
+
+        function showToast(msg, type) {
+            try {
+                const toast = document.getElementById('toast');
+                if (!toast) return;
+                toast.textContent = msg;
+                toast.className = 'toast show' + (type ? ' ' + type : '');
+                clearTimeout(showToast._t);
+                showToast._t = setTimeout(() => { toast.className = 'toast'; }, 2000);
+            } catch(e) { console.warn('toast error:', e); }
+        }
+
+        function formatDate(iso) {
+            if (!iso) return '-';
+            try {
+                const d = new Date(iso);
+                if (isNaN(d.getTime())) return iso;
+                const pad = n => String(n).padStart(2, '0');
+                return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+            } catch (e) {
+                return iso;
+            }
+        }
+
+        function escapeHtml(str) {
+            if (str == null || str === '') return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function loadLS(key, fallback) {
+            try {
+                let raw;
+                if (USE_LS) {
+                    raw = localStorage.getItem(key);
+                } else {
+                    raw = memoryStore[key];
+                }
+                if (!raw) return fallback;
+                return JSON.parse(raw);
+            } catch (e) {
+                console.warn('读取失败', key, e);
+                return fallback;
+            }
+        }
+
+        function saveLS(key, data) {
+            try {
+                const str = JSON.stringify(data);
+                if (USE_LS) {
+                    localStorage.setItem(key, str);
+                } else {
+                    memoryStore[key] = str;
+                }
+            } catch (e) {
+                console.error('写入失败', key, e);
+                if (USE_LS) {
+                    // fallback 到内存
+                    try { memoryStore[key] = JSON.stringify(data); } catch(e2) {}
+                }
+                showToast('存储失败，数据将保存在当前会话中', 'error');
+            }
+        }
+
+        // ============== 数据层（与网页端兼容） ==============
+        function loadData() {
+            const allProjects = loadLS(STORAGE.PROJECTS, []);
+            const allSites = loadLS(STORAGE.SITES, []);
+            const allPhotos = loadLS(STORAGE.PHOTOS, []);
+
+            // 查找或创建当前项目
+            let project = allProjects.find(p => p.id === state.projectId);
+            if (!project) {
+                project = {
+                    id: state.projectId,
+                    code: state.projectCode,
+                    name: state.projectName,
+                    description: '',
+                    createdAt: new Date().toISOString(),
+                    qrcodeUrl: '',
+                    siteCount: 0,
+                    photoCount: 0
+                };
+                allProjects.push(project);
+                saveLS(STORAGE.PROJECTS, allProjects);
+            } else {
+                // 使用数据库中的名称（网页端可能修改过）
+                if (project.name) state.projectName = project.name;
+                if (project.code) state.projectCode = project.code;
+            }
+
+            state.sites = allSites.filter(s => s.projectId === state.projectId);
+            state.photos = allPhotos.filter(p => p.projectId === state.projectId);
+        }
+
+        function syncProjects(updater) {
+            const all = loadLS(STORAGE.PROJECTS, []);
+            const updated = updater(all);
+            saveLS(STORAGE.PROJECTS, updated);
+        }
+
+        function refreshProjectCount() {
+            const all = loadLS(STORAGE.PROJECTS, []);
+            const idx = all.findIndex(p => p.id === state.projectId);
+            if (idx === -1) return;
+            const allSites = loadLS(STORAGE.SITES, []);
+            const allPhotos = loadLS(STORAGE.PHOTOS, []);
+            all[idx].siteCount = allSites.filter(s => s.projectId === state.projectId).length;
+            all[idx].photoCount = allPhotos.filter(p => p.projectId === state.projectId).length;
+            saveLS(STORAGE.PROJECTS, all);
+        }
+
+        function saveSites() {
+            const all = loadLS(STORAGE.SITES, []);
+            const others = all.filter(s => s.projectId !== state.projectId);
+            const merged = [...others, ...state.sites];
+            saveLS(STORAGE.SITES, merged);
+            refreshProjectCount();
+        }
+
+        function savePhotos() {
+            const all = loadLS(STORAGE.PHOTOS, []);
+            const others = all.filter(p => p.projectId !== state.projectId);
+            const merged = [...others, ...state.photos];
+            saveLS(STORAGE.PHOTOS, merged);
+            refreshProjectCount();
+        }
+
+        // ============== EXIF 解析 ==============
+        function parseEXIF(arrayBuffer) {
+            const result = { takenAt: null, latitude: null, longitude: null };
+            try {
+                const dataView = new DataView(arrayBuffer);
+                if (dataView.byteLength < 4 || dataView.getUint16(0) !== 0xFFD8) return result;
+
+                let offset = 2;
+                while (offset < dataView.byteLength) {
+                    if (offset + 2 > dataView.byteLength) break;
+                    const marker = dataView.getUint16(offset);
+                    offset += 2;
+
+                    if (marker === 0xFFE1 && offset + 2 <= dataView.byteLength) {
+                        if (dataView.byteLength - offset < 8) break;
+                        const signature = dataView.getUint32(offset + 2);
+                        if (signature !== 0x45786966) break; // 'Exif'
+                        if (dataView.getUint16(offset + 6) !== 0x0000) break;
+
+                        const tiffOffset = offset + 8;
+                        const byteOrder = dataView.getUint16(tiffOffset);
+                        const littleEndian = byteOrder === 0x4949;
+                        if (!littleEndian && byteOrder !== 0x4D4D) break;
+
+                        const ifd0Addr = tiffOffset + dataView.getUint32(tiffOffset + 4, littleEndian);
+                        if (ifd0Addr + 2 > dataView.byteLength) break;
+                        const numEntries = dataView.getUint16(ifd0Addr, littleEndian);
+
+                        for (let i = 0; i < numEntries; i++) {
+                            const entryAddr = ifd0Addr + 2 + i * 12;
+                            if (entryAddr + 12 > dataView.byteLength) break;
+                            const tag = dataView.getUint16(entryAddr, littleEndian);
+
+                            if (tag === 306) { // DateTime
+                                const val = readExifString(dataView, tiffOffset + dataView.getUint32(entryAddr + 8, littleEndian));
+                                const m = val.match(/(\d{4}):(\d{2}):(\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+                                if (m) result.takenAt = `${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}`;
+                            }
+
+                            if (tag === 34853) { // GPSInfo
+                                const gpsIfdAddr = tiffOffset + dataView.getUint32(entryAddr + 8, littleEndian);
+                                const gps = parseGPSIFD(dataView, gpsIfdAddr, littleEndian, tiffOffset);
+                                if (gps) {
+                                    result.latitude = gps.latitude;
+                                    result.longitude = gps.longitude;
+                                }
+                            }
+                        }
+                        break;
+                    } else if ((marker & 0xFF00) !== 0xFF00) {
+                        break;
+                    } else {
+                        if (offset + 2 <= dataView.byteLength) {
+                            offset += dataView.getUint16(offset);
+                        } else break;
+                    }
+                }
+            } catch (e) {
+                console.warn('EXIF 解析失败', e);
+            }
+            return result;
+        }
+
+        function readExifString(dataView, offset) {
+            let str = '';
+            for (let i = 0; i < 100; i++) {
+                if (offset + i >= dataView.byteLength) break;
+                const c = dataView.getUint8(offset + i);
+                if (c === 0) break;
+                str += String.fromCharCode(c);
+            }
+            return str;
+        }
+
+        function parseGPSIFD(dataView, ifdAddr, littleEndian, tiffOffset) {
+            if (ifdAddr + 2 > dataView.byteLength) return null;
+            const numEntries = dataView.getUint16(ifdAddr, littleEndian);
+            let latRef = 'N', lonRef = 'E';
+            let latRational = null, lonRational = null;
+
+            for (let i = 0; i < numEntries; i++) {
+                const entryAddr = ifdAddr + 2 + i * 12;
+                if (entryAddr + 12 > dataView.byteLength) break;
+                const tag = dataView.getUint16(entryAddr, littleEndian);
+                const count = dataView.getUint32(entryAddr + 4, littleEndian);
+                const valueOffset = entryAddr + 8;
+
+                if (tag === 1) {
+                    const addr = tiffOffset + dataView.getUint32(valueOffset, littleEndian);
+                    latRef = String.fromCharCode(dataView.getUint8(addr));
+                }
+                if (tag === 2 && count === 3) {
+                    const addr = tiffOffset + dataView.getUint32(valueOffset, littleEndian);
+                    latRational = readRational3(dataView, addr, littleEndian);
+                }
+                if (tag === 3) {
+                    const addr = tiffOffset + dataView.getUint32(valueOffset, littleEndian);
+                    lonRef = String.fromCharCode(dataView.getUint8(addr));
+                }
+                if (tag === 4 && count === 3) {
+                    const addr = tiffOffset + dataView.getUint32(valueOffset, littleEndian);
+                    lonRational = readRational3(dataView, addr, littleEndian);
+                }
+            }
+
+            if (latRational && lonRational) {
+                let lat = latRational[0] + latRational[1] / 60 + latRational[2] / 3600;
+                let lon = lonRational[0] + lonRational[1] / 60 + lonRational[2] / 3600;
+                if (latRef === 'S') lat = -lat;
+                if (lonRef === 'W') lon = -lon;
+                return { latitude: lat, longitude: lon };
+            }
+            return null;
+        }
+
+        function readRational3(dataView, offset, littleEndian) {
+            const out = [];
+            for (let i = 0; i < 3; i++) {
+                const num = dataView.getUint32(offset + i * 8, littleEndian);
+                const den = dataView.getUint32(offset + i * 8 + 4, littleEndian);
+                out.push(den > 0 ? num / den : 0);
+            }
+            return out;
+        }
+
+        // ============== URL 初始化（强健壮版本） ==============
+        function init() {
+            try {
+                // 解析 URL 参数（兼容浏览器 URL 解码失败的情况）
+                let searchStr = window.location.search || '';
+                // 手动解析（兼容不支持 URLSearchParams 的旧浏览器）
+                const params = {};
+                if (searchStr) {
+                    try {
+                        const usp = new URLSearchParams(searchStr);
+                        usp.forEach((v, k) => { params[k] = v; });
+                    } catch(e) {
+                        // fallback：手动解析
+                        searchStr.replace(/^[?]/, '').split('&').forEach(pair => {
+                            const idx = pair.indexOf('=');
+                            if (idx > 0) {
+                                try {
+                                    const k = decodeURIComponent(pair.substring(0, idx));
+                                    const v = decodeURIComponent(pair.substring(idx + 1));
+                                    params[k] = v;
+                                } catch(e2) {}
+                            }
+                        });
+                    }
+                }
+
+                state.projectId = params.projectId || params['projectId'];
+
+                if (!state.projectId) {
+                    renderError('无效链接', '缺少项目信息。请从网页管理端扫码进入，或点击下方按钮返回。');
+                    return;
+                }
+
+                state.projectName = params.name || '勘察项目';
+                state.projectCode = params.code || 'PROJ';
+
+                // 加载数据
+                try { loadData(); } catch(e) {
+                    console.error('加载数据失败', e);
+                    // 失败时仍继续，使用空数据
+                }
+
+                renderApp();
+            } catch(e) {
+                console.error('初始化失败', e);
+                renderError('页面加载失败', '请刷新浏览器重试，或点击下方按钮返回管理端。');
+            }
+        }
+
+        // ============== 错误页 ==============
+        function renderError(title, msg) {
+            try {
+                document.getElementById('app').innerHTML = `
+                <div class="project-card">
+                    <div class="name">📸 勘察照片采集</div>
+                    <div class="code">移动端数据采集工具</div>
+                </div>
+                <div class="section" style="padding: 0 16px; margin-top: 20px;">
+                    <div class="empty" style="padding: 32px 16px;">
+                        <div class="empty-icon" style="font-size: 48px;">⚠️</div>
+                        <h2 style="margin: 12px 0 8px; color: #1f2937; font-size: 18px;">${escapeHtml(title)}</h2>
+                        <p style="margin: 0; color: #6b7280; font-size: 14px; line-height: 1.6;">${escapeHtml(msg)}</p>
+                        <button class="btn-primary btn-block" style="margin-top: 24px; padding: 12px 18px; border: none; border-radius: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-size: 15px; width: 100%; cursor: pointer;" onclick="location.href='./'">返回管理端</button>
+                    </div>
+                </div>
+            `;
+            } catch(e2) { console.error(e2); }
+        }
+
+        // ============== 主渲染 ==============
+        function renderApp() {
+            const siteCount = state.sites.length;
+            const photoCount = state.photos.length;
+
+            document.getElementById('app').innerHTML = `
+                <div class="project-card">
+                    <div class="name">${escapeHtml(state.projectName)}</div>
+                    <div class="code">🏷️ ${escapeHtml(state.projectCode)} · ID: ${state.projectId.slice(0, 12)}...</div>
+                    <div class="stats">
+                        <div class="stat"><strong>${siteCount}</strong>站点</div>
+                        <div class="stat"><strong>${photoCount}</strong>照片</div>
+                    </div>
+                </div>
+
+                <!-- 站点管理 -->
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">📍 站点 <small>${siteCount}</small></div>
+                        <button class="btn-primary" onclick="openSiteModal()">+ 添加站点</button>
+                    </div>
+                    ${siteCount === 0 ? renderEmpty('📍', '暂无站点', '点击"添加站点"按钮创建') : renderSiteList()}
+                </div>
+
+                <!-- 照片上传与管理 -->
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">📷 照片 <small>${photoCount}</small></div>
+                        <label class="btn-primary" style="cursor:pointer">
+                            📸 上传照片
+                            <input type="file" class="hidden-file" accept="image/*" capture="environment" multiple onchange="handleFiles(event)" />
+                        </label>
+                    </div>
+                    ${renderPhotoList()}
+                </div>
+
+                <!-- 数据导出/导入 -->
+                <div class="section">
+                    <div class="section-header">
+                        <div class="section-title">🔄 数据同步</div>
+                    </div>
+                    <div class="sync-card">
+                        <h3>与网页端同步数据</h3>
+                        <div class="sync-buttons">
+                            <button class="btn-primary" onclick="exportJSON()">📤 导出 JSON</button>
+                            <label class="btn-secondary" style="cursor:pointer">
+                                📥 导入 JSON
+                                <input type="file" class="hidden-file" accept="application/json" onchange="importJSON(event)" />
+                            </label>
+                            <button class="btn-danger" onclick="clearCurrentProject()">🗑️ 清空本项目</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderEmpty(icon, title, desc) {
+            return `
+                <div class="empty">
+                    <div class="empty-icon">${icon}</div>
+                    <h3>${escapeHtml(title)}</h3>
+                    <p>${escapeHtml(desc)}</p>
+                </div>
+            `;
+        }
+
+        function renderSiteList() {
+            const sorted = [...state.sites].sort((a, b) => {
+                const ca = (a.code || '').toLowerCase();
+                const cb = (b.code || '').toLowerCase();
+                return ca.localeCompare(cb);
+            });
+
+            return `
+                <div class="site-list">
+                    ${sorted.map(site => {
+                        const cnt = state.photos.filter(p => p.siteId === site.id).length;
+                        return `
+                            <div class="site-card">
+                                <div class="top">
+                                    <div class="name">${escapeHtml(site.name)}</div>
+                                    <div class="photo-count">${cnt} 张</div>
+                                </div>
+                                <div class="meta">
+                                    <div><span>编号</span>${escapeHtml(site.code || '-')}</div>
+                                    ${site.address ? `<div><span>地址</span>${escapeHtml(site.address)}</div>` : ''}
+                                    ${site.roomType ? `<div><span>机房</span>${escapeHtml(site.roomType)}</div>` : ''}
+                                    ${site.remark ? `<div><span>备注</span>${escapeHtml(site.remark)}</div>` : ''}
+                                </div>
+                                <div class="actions">
+                                    <button onclick="openSiteModal('${site.id}')">✏️ 编辑</button>
+                                    <button onclick="uploadToSite('${site.id}')">📸 拍照</button>
+                                    <button class="del" onclick="deleteSite('${site.id}')">🗑️ 删除</button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        function renderPhotoList() {
+            if (state.photos.length === 0) {
+                return renderEmpty('📷', '暂无照片', '选择站点后点击"上传照片"');
+            }
+
+            // 按站点分组
+            const bySite = {};
+            for (const p of state.photos) {
+                if (!bySite[p.siteId]) bySite[p.siteId] = [];
+                bySite[p.siteId].push(p);
+            }
+            // 按拍摄时间倒序
+            Object.keys(bySite).forEach(k => {
+                bySite[k].sort((a, b) => (b.takenAt || b.uploadedAt || '').localeCompare(a.takenAt || a.uploadedAt || ''));
+            });
+
+            const siteMap = {};
+            for (const s of state.sites) siteMap[s.id] = s;
+
+            const siteIds = [...state.sites.map(s => s.id), ...Object.keys(bySite).filter(k => !siteMap[k])];
+            const visited = new Set();
+
+            let html = '';
+            for (const sid of siteIds) {
+                if (visited.has(sid)) continue;
+                visited.add(sid);
+                if (!bySite[sid] || bySite[sid].length === 0) continue;
+                const site = siteMap[sid];
+                const label = site ? `${site.code || ''} ${site.name}` : '未关联站点';
+                html += `
+                    <div class="photo-group">
+                        <div class="photo-group-title">${escapeHtml(label)} <small style="color:#9ca3af;font-weight:400">(${bySite[sid].length})</small></div>
+                        <div class="photo-grid">
+                            ${bySite[sid].map(p => `
+                                <div class="photo-item" onclick="openPhotoDetail('${p.id}')">
+                                    <img src="${p.thumbnailUrl || p.fileUrl}" alt="" loading="lazy" />
+                                    ${p.deviceType ? `<div class="badge">${escapeHtml(p.deviceType)}</div>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            return html;
+        }
+
+        // ============== 站点 Modal ==============
+        function openSiteModal(siteId) {
+            state.editingSiteId = siteId || null;
+            const title = document.getElementById('site-modal-title');
+            if (siteId) {
+                const site = state.sites.find(s => s.id === siteId);
+                title.textContent = '编辑站点';
+                document.getElementById('site-name').value = site?.name || '';
+                document.getElementById('site-code').value = site?.code || '';
+                document.getElementById('site-address').value = site?.address || '';
+                document.getElementById('site-room').value = site?.roomType || '';
+                document.getElementById('site-remark').value = site?.remark || '';
+            } else {
+                title.textContent = '添加站点';
+                document.getElementById('site-name').value = '';
+                document.getElementById('site-code').value = `SITE${String(state.sites.length + 1).padStart(3, '0')}-${String(Date.now()).slice(-4)}`;
+                document.getElementById('site-address').value = '';
+                document.getElementById('site-room').value = '';
+                document.getElementById('site-remark').value = '';
+            }
+            document.getElementById('site-modal').classList.add('show');
+            setTimeout(() => document.getElementById('site-name').focus(), 300);
+        }
+
+        function closeSiteModal() {
+            document.getElementById('site-modal').classList.remove('show');
+            state.editingSiteId = null;
+        }
+
+        function saveSite() {
+            const name = document.getElementById('site-name').value.trim();
+            if (!name) { showToast('请输入站点名称', 'error'); return; }
+            const code = document.getElementById('site-code').value.trim() || name;
+            const address = document.getElementById('site-address').value.trim();
+            const roomType = document.getElementById('site-room').value;
+            const remark = document.getElementById('site-remark').value.trim();
+
+            if (state.editingSiteId) {
+                const s = state.sites.find(x => x.id === state.editingSiteId);
+                if (s) { s.name = name; s.code = code; s.address = address; s.roomType = roomType; s.remark = remark; }
+                showToast('站点已更新', 'success');
+            } else {
+                state.sites.push({
+                    id: uid('site'),
+                    projectId: state.projectId,
+                    name, code, address, roomType, remark
+                });
+                showToast('站点已创建', 'success');
+            }
+            saveSites();
+            closeSiteModal();
+            renderApp();
+        }
+
+        function deleteSite(siteId) {
+            const site = state.sites.find(s => s.id === siteId);
+            if (!site) return;
+            const photoCount = state.photos.filter(p => p.siteId === siteId).length;
+            const msg = photoCount > 0
+                ? `确定删除「${site.name}」？将同时删除 ${photoCount} 张照片。`
+                : `确定删除「${site.name}」？`;
+            if (!confirm(msg)) return;
+            state.sites = state.sites.filter(s => s.id !== siteId);
+            state.photos = state.photos.filter(p => p.siteId !== siteId);
+            saveSites();
+            savePhotos();
+            renderApp();
+            showToast('站点已删除', 'success');
+        }
+
+        // ============== 照片上传 ==============
+        function uploadToSite(siteId) {
+            try {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.multiple = true;
+                try { input.capture = 'environment'; } catch(e) {}
+                input.onchange = (e) => handleFiles(e, siteId);
+                setTimeout(() => input.click(), 0);
+            } catch(e) {
+                console.error('打开相机失败:', e);
+                showToast('无法打开相机，请检查浏览器权限', 'error');
+            }
+        }
+
+        async function handleFiles(event, presetSiteId) {
+            try {
+                const files = event.target.files;
+                if (!files || files.length === 0) return;
+                if (state.sites.length === 0) {
+                    showToast('请先创建站点', 'error');
+                    return;
+                }
+
+                state.pendingPhotos = [];
+                const defaultSiteId = presetSiteId || state.sites[0].id;
+
+                for (const file of Array.from(files)) {
+                    let dataUrl = '';
+                    try {
+                        dataUrl = await new Promise((resolve, reject) => {
+                            const r = new FileReader();
+                            r.onload = e => resolve(e.target.result);
+                            r.onerror = () => reject(new Error('读取失败'));
+                            r.readAsDataURL(file);
+                        });
+                    } catch(e) {
+                        console.error('读取图片失败:', file.name, e);
+                        showToast('部分图片读取失败', 'error');
+                        continue;
+                    }
+
+                    let exif = { takenAt: null, latitude: null, longitude: null };
+                    try {
+                        const ab = await new Promise((resolve, reject) => {
+                            const r = new FileReader();
+                            r.onload = e => resolve(e.target.result);
+                            r.onerror = () => reject(new Error('EXIF读取失败'));
+                            r.readAsArrayBuffer(file);
+                        });
+                        exif = parseEXIF(ab);
+                    } catch(e) {
+                        console.warn('EXIF 读取失败', e);
+                    }
+
+                    const baseName = file.name.replace(/\.[^.]+$/, '');
+                    const seq = state.pendingPhotos.length + 1;
+                    let autoFileName;
+                    try {
+                        const site = state.sites.find(s => s.id === defaultSiteId);
+                        autoFileName = `${(site && site.code) || 'SITE'}_${seq}`;
+                    } catch(e) { autoFileName = `PHOTO_${seq}`; }
+
+                    state.pendingPhotos.push({
+                        dataUrl,
+                        fileUrl: dataUrl,
+                        thumbnailUrl: dataUrl,
+                        originalName: baseName,
+                        fileName: autoFileName,
+                        deviceType: '',
+                        siteId: defaultSiteId,
+                        takenAt: exif.takenAt || new Date().toISOString(),
+                        latitude: exif.latitude,
+                        longitude: exif.longitude,
+                        remark: '',
+                        isManualNamed: false
+                    });
+                }
+
+                if (state.pendingPhotos.length === 0) {
+                    showToast('没有可用的图片', 'error');
+                    return;
+                }
+
+                event.target.value = '';
+                state.pendingPhotoIndex = 0;
+                state.editingPhotoId = null;
+                openPhotoModal();
+            } catch(e) {
+                console.error('上传处理失败', e);
+                showToast('上传失败，请重试', 'error');
+            }
+        }
+
+        // ============== 照片 Modal ==============
+        function openPhotoModal() {
+            const isEdit = !!state.editingPhotoId;
+            const photo = isEdit
+                ? state.photos.find(p => p.id === state.editingPhotoId)
+                : state.pendingPhotos[state.pendingPhotoIndex];
+
+            if (!photo) return;
+
+            // 填充站点下拉
+            const siteSelect = document.getElementById('photo-site');
+            siteSelect.innerHTML = state.sites.map(s =>
+                `<option value="${s.id}">${escapeHtml(s.code || '')} ${escapeHtml(s.name)}</option>`
+            ).join('');
+            siteSelect.value = photo.siteId || (state.sites[0] && state.sites[0].id) || '';
+
+            // 预览
+            const preview = document.getElementById('photo-modal-preview');
+            if (!isEdit && photo.dataUrl) {
+                preview.innerHTML = `<img src="${photo.dataUrl}" class="photo-detail-img" alt="" />`;
+            } else if (photo.fileUrl) {
+                preview.innerHTML = `<img src="${photo.fileUrl}" class="photo-detail-img" alt="" />`;
+            } else {
+                preview.innerHTML = '';
+            }
+
+            // 标题
+            const totalPending = state.pendingPhotos.length;
+            const title = document.getElementById('photo-modal-title');
+            if (isEdit) {
+                title.textContent = '编辑照片信息';
+            } else if (totalPending > 1) {
+                title.textContent = `照片信息 (${state.pendingPhotoIndex + 1}/${totalPending})`;
+            } else {
+                title.textContent = '照片信息';
+            }
+
+            // 设备类型标签
+            const tags = document.querySelectorAll('#device-tags .device-tag');
+            tags.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.v === photo.deviceType);
+                btn.onclick = () => {
+                    tags.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.getElementById('photo-device').value = btn.dataset.v;
+                };
+            });
+
+            document.getElementById('photo-device').value = photo.deviceType || '';
+            document.getElementById('photo-filename').value = photo.fileName || '';
+            document.getElementById('photo-time').value = formatDate(photo.takenAt);
+            document.getElementById('photo-gps').value =
+                (photo.latitude && photo.longitude)
+                    ? `${photo.latitude.toFixed(6)}, ${photo.longitude.toFixed(6)}`
+                    : '无 GPS 信息';
+            document.getElementById('photo-remark').value = photo.remark || '';
+
+            // 保存按钮文字
+            const saveBtn = document.getElementById('photo-save-btn');
+            if (!isEdit && state.pendingPhotoIndex < state.pendingPhotos.length - 1) {
+                saveBtn.textContent = '保存并下一张 →';
+            } else {
+                saveBtn.textContent = isEdit ? '保存修改' : '保存照片';
+            }
+
+            document.getElementById('photo-modal').classList.add('show');
+        }
+
+        function closePhotoModal() {
+            document.getElementById('photo-modal').classList.remove('show');
+            state.pendingPhotos = [];
+            state.pendingPhotoIndex = -1;
+            state.editingPhotoId = null;
+        }
+
+        function savePhoto() {
+            const siteId = document.getElementById('photo-site').value;
+            if (!siteId) { showToast('请选择站点', 'error'); return; }
+
+            const deviceType = document.getElementById('photo-device').value.trim();
+            const fileName = document.getElementById('photo-filename').value.trim();
+            const remark = document.getElementById('photo-remark').value.trim();
+
+            if (state.editingPhotoId) {
+                const p = state.photos.find(x => x.id === state.editingPhotoId);
+                if (p) {
+                    p.siteId = siteId;
+                    p.deviceType = deviceType;
+                    p.fileName = fileName || p.fileName;
+                    p.remark = remark;
+                    p.isManualNamed = !!fileName;
+                }
+                savePhotos();
+                closePhotoModal();
+                renderApp();
+                showToast('照片已更新', 'success');
+                return;
+            }
+
+            // 新照片
+            const p = state.pendingPhotos[state.pendingPhotoIndex];
+            if (!p) return;
+
+            p.siteId = siteId;
+            p.deviceType = deviceType;
+            p.fileName = fileName || p.fileName;
+            p.remark = remark;
+            p.isManualNamed = !!fileName;
+
+            const now = new Date().toISOString();
+            state.photos.push({
+                id: uid('photo'),
+                projectId: state.projectId,
+                siteId: p.siteId,
+                originalName: p.originalName,
+                fileName: p.fileName,
+                fileUrl: p.fileUrl,
+                thumbnailUrl: p.thumbnailUrl,
+                deviceType: p.deviceType,
+                remark: p.remark,
+                isManualNamed: p.isManualNamed,
+                uploadedAt: now,
+                takenAt: p.takenAt,
+                latitude: p.latitude,
+                longitude: p.longitude,
+                location: (p.latitude && p.longitude) ? `${p.latitude.toFixed(5)}, ${p.longitude.toFixed(5)}` : undefined
+            });
+
+            savePhotos();
+
+            // 处理下一张
+            if (state.pendingPhotoIndex < state.pendingPhotos.length - 1) {
+                state.pendingPhotoIndex++;
+                showToast(`已保存 ${state.pendingPhotoIndex}/${state.pendingPhotos.length}`, 'success');
+                openPhotoModal();
+            } else {
+                showToast(`已保存 ${state.pendingPhotos.length} 张照片`, 'success');
+                closePhotoModal();
+                renderApp();
+            }
+        }
+
+        // ============== 照片详情 ==============
+        function openPhotoDetail(photoId) {
+            const p = state.photos.find(x => x.id === photoId);
+            if (!p) return;
+            const site = state.sites.find(s => s.id === p.siteId);
+
+            document.getElementById('detail-content').innerHTML = `
+                <img src="${p.fileUrl}" class="photo-detail-img" alt="" />
+                <div class="info-row"><span class="label">📁 文件</span><span class="value">${escapeHtml(p.fileName)}</span></div>
+                <div class="info-row"><span class="label">📍 站点</span><span class="value">${site ? escapeHtml(site.code + ' ' + site.name) : '未关联'}</span></div>
+                ${p.deviceType ? `<div class="info-row"><span class="label">🖥️ 设备</span><span class="value">${escapeHtml(p.deviceType)}</span></div>` : ''}
+                <div class="info-row"><span class="label">🕐 拍摄</span><span class="value">${formatDate(p.takenAt)}</span></div>
+                <div class="info-row"><span class="label">📤 上传</span><span class="value">${formatDate(p.uploadedAt)}</span></div>
+                ${p.latitude ? `<div class="info-row"><span class="label">🌐 GPS</span><span class="value">${p.latitude.toFixed(6)}, ${p.longitude.toFixed(6)}</span></div>` : ''}
+                ${p.remark ? `<div class="info-row"><span class="label">📝 备注</span><span class="value">${escapeHtml(p.remark)}</span></div>` : ''}
+            `;
+
+            document.getElementById('detail-edit-btn').onclick = () => {
+                closeDetail();
+                state.editingPhotoId = photoId;
+                state.pendingPhotos = [];
+                openPhotoModal();
+            };
+            document.getElementById('detail-delete-btn').onclick = () => {
+                if (confirm('确定删除这张照片？')) {
+                    state.photos = state.photos.filter(x => x.id !== photoId);
+                    savePhotos();
+                    closeDetail();
+                    renderApp();
+                    showToast('照片已删除', 'success');
+                }
+            };
+
+            document.getElementById('detail-modal').classList.add('show');
+        }
+
+        function closeDetail() {
+            document.getElementById('detail-modal').classList.remove('show');
+        }
+
+        // ============== 导出导入 ==============
+        function exportJSON() {
+            const allProjects = loadLS(STORAGE.PROJECTS, []);
+            const project = allProjects.find(p => p.id === state.projectId) || {
+                id: state.projectId,
+                code: state.projectCode,
+                name: state.projectName
+            };
+
+            const data = {
+                version: '1.0',
+                exportedAt: new Date().toISOString(),
+                project,
+                sites: state.sites,
+                photos: state.photos
+            };
+
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `survey-${state.projectCode || 'project'}-${Date.now()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('数据已导出', 'success');
+        }
+
+        function importJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    const siteCount = (data.sites || []).length;
+                    const photoCount = (data.photos || []).length;
+                    if (!confirm(`将导入 ${siteCount} 个站点、${photoCount} 张照片到当前项目。\n\n相同编号的站点会被合并，照片按名称+站点去重。`)) {
+                        event.target.value = '';
+                        return;
+                    }
+
+                    // 合并站点：按 code 去重（相同 code 的保留已有）
+                    const existingCodes = new Set(state.sites.map(s => s.code));
+                    const siteIdMap = {}; // 旧 siteId -> 新/现有 siteId
+
+                    for (const site of (data.sites || [])) {
+                        if (existingCodes.has(site.code)) {
+                            const existing = state.sites.find(s => s.code === site.code);
+                            if (existing) siteIdMap[site.id] = existing.id;
+                        } else {
+                            const newSite = {
+                                id: uid('site'),
+                                projectId: state.projectId,
+                                name: site.name,
+                                code: site.code,
+                                address: site.address,
+                                roomType: site.roomType,
+                                remark: site.remark,
+                                latitude: site.latitude,
+                                longitude: site.longitude
+                            };
+                            state.sites.push(newSite);
+                            siteIdMap[site.id] = newSite.id;
+                            existingCodes.add(site.code);
+                        }
+                    }
+
+                    // 合并照片：按 siteId + fileName 去重
+                    const existingPhotoKeys = new Set(state.photos.map(p => `${p.siteId}-${p.fileName}`));
+                    let addedPhotos = 0;
+                    for (const photo of (data.photos || [])) {
+                        const mappedSiteId = siteIdMap[photo.siteId] || photo.siteId || (state.sites[0] && state.sites[0].id);
+                        if (!mappedSiteId) continue;
+                        const key = `${mappedSiteId}-${photo.fileName}`;
+                        if (existingPhotoKeys.has(key)) continue;
+                        state.photos.push({
+                            id: uid('photo'),
+                            projectId: state.projectId,
+                            siteId: mappedSiteId,
+                            originalName: photo.originalName || photo.fileName,
+                            fileName: photo.fileName,
+                            fileUrl: photo.fileUrl,
+                            thumbnailUrl: photo.thumbnailUrl || photo.fileUrl,
+                            deviceType: photo.deviceType,
+                            remark: photo.remark,
+                            isManualNamed: photo.isManualNamed || false,
+                            uploadedAt: photo.uploadedAt || new Date().toISOString(),
+                            takenAt: photo.takenAt,
+                            latitude: photo.latitude,
+                            longitude: photo.longitude,
+                            location: photo.location
+                        });
+                        existingPhotoKeys.add(key);
+                        addedPhotos++;
+                    }
+
+                    saveSites();
+                    savePhotos();
+                    renderApp();
+                    showToast(`导入成功 (${siteCount} 站点, ${addedPhotos} 照片)`, 'success');
+                } catch (err) {
+                    console.error(err);
+                    showToast('导入失败：文件格式错误', 'error');
+                }
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        function clearCurrentProject() {
+            if (!confirm('⚠️ 确定清空当前项目的所有站点和照片？此操作不可撤销！')) return;
+            state.sites = [];
+            state.photos = [];
+            saveSites();
+            savePhotos();
+            renderApp();
+            showToast('数据已清空', 'success');
+        }
+
+        // 初始化
+        init();
+    </script>
+</body>
+</html>
